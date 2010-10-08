@@ -5,8 +5,8 @@
 		public function about(){
 			return array(
 				'name' => 'Field: Meta Keys',
-				'version' => '0.1',
-				'release-date' => '2010-10-04',
+				'version' => '1.0',
+				'release-date' => '2010-10-08',
 				'author' => array(
 					'name' => 'Brendan Abbott',
 					'website' => 'http://www.bloodbone.ws',
@@ -62,13 +62,11 @@
 			return true;
 		}
 
-
-
 	/*-------------------------------------------------------------------------
 		Utitilites:
 	-------------------------------------------------------------------------*/
 		public static function appendAssets() {
-			Administration::instance()->Page->addScriptToHead(URL . '/extensions/field_metakeys/assets/default.js', 101, false);
-			Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/field_metakeys/assets/default.css', 102, false);
+			Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/field_metakeys/assets/default.css', 'screen', 10000, false);
+			Administration::instance()->Page->addScriptToHead(URL . '/extensions/field_metakeys/assets/default.js', 10001, false);
 		}
 	}

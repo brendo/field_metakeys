@@ -1,0 +1,93 @@
+/*
+	Pair Styling
+*/
+	div.field-metakeys dl {
+		background: #E6E6E5;
+		color: #777;
+		padding: 10px 15px;
+		border-bottom: 1px solid #C2C2C2;
+		border-top: 1px solid #C2C2C2;
+	}
+
+	div.field-metakeys dt{
+		margin: 10px 0;
+		clear: right;
+	}
+
+	div.field-metakeys dd {
+		padding-bottom: 10px;
+		border-bottom: 1px solid #C2C2C2
+	}
+	div.field-metakeys dd:last-child {
+		border-bottom: none;
+	}
+
+	div.field-metakeys input {
+		display: block;
+		margin-right: 10px;
+		width: 80%;
+		float: right;
+	}
+
+	div.field-metakeys dd input {
+		margin-right: 26px;
+	}
+
+	div.field-metakeys input:focus {
+		background: #FFFFAA;
+		background-color: rgba(255, 255, 170, 0.5);
+	}
+
+/*
+	Control Styling
+*/
+	div.field-metakeys div.control-bar {
+		background: #F5F5F3;
+		border: 1px solid #E4E4DE;
+		padding: 4px 0;
+		float: left;
+		width: 99.5%;
+	}
+
+	div.field-metakeys .control {
+		float: right;
+		border-radius: 1em;
+		-moz-border-radius: 1em;
+		-webkit-border-radius: 1em;
+		border: 1px solid #E4E4E2;
+		background: #EBEBE9;
+		margin-right: 12px;
+		display: inline-block;
+		text-decoration: none;
+		color: #777;
+		padding: 0 .4em;
+	}
+
+	div.field-metakeys .control:hover {
+		background: #81B934;
+		border-color: #81B934;
+		color: #FFF;
+		cursor: pointer;
+	}
+
+	div.field-metakeys dt a.remove {
+		color: #FFF;
+		background: #A59E9E;
+		border-color: #A59E9E;
+		font-size: 10px;
+		margin-right: 0px;
+	}
+
+	div.field-metakeys dt a.remove:hover {
+		background: #FF0000;
+		border-color: #FFF;
+	}
+	
+/*
+	Error Styles
+*/
+	div.field-metakeys #error p {
+		clear: both;
+		margin: 0;
+		padding: 1em 0 0;
+	}

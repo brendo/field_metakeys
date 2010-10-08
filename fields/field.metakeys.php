@@ -60,20 +60,20 @@
 		public function applyValidationRules($data) {
 			$rule = $this->get('validator');
 
-			return ($rule ? General::validateString($data, $rule) : true);
+			return ($rule ? General::validateString($data['value'], $rule) : true);
 		}
 
 		public function buildPair(XMLElement &$dl, $key = null, $value = null, $i = '') {
 			$element_name = $this->get('element_name');
 
-			$dt = new XMLElement('dt');
+			$dt = new XMLElement('dt', 'Key');
 			$dt->appendChild(
 				Widget::Input(
 					"fields[$element_name][key][$i]", $key
 				)
 			);
 
-			$dd = new XMLElement('dd');
+			$dd = new XMLElement('dd', 'Value');
 			$dd->appendChild(
 				Widget::Input(
 					"fields[$element_name][value][$i]", $value
@@ -82,6 +82,10 @@
 
 			$dl->appendChild($dt);
 			$dl->appendChild($dd);
+		}
+
+		public function isHandlised($value) {
+			return Lang::createHandle($value) == $value;
 		}
 
 	/*-------------------------------------------------------------------------
@@ -128,7 +132,6 @@
 			##	Defaults
 			$this->appendRequiredCheckbox($wrapper);
 			$this->appendShowColumnCheckbox($wrapper);
-
 		}
 
 		/**
@@ -179,6 +182,18 @@
 
 			#	If there is actually $data, show that
 			else if(!is_null($data)) {
+
+				#	If there's only one 'pair', we'll need to make them an array
+				#	so the logic remains consistant
+				if(!is_array($data['key_value'])) {
+					$data = array(
+						'key_value' => array($data['key_value']),
+						'key_handle' => array($data['key_handle']),
+						'value_value' => array($data['value_value']),
+						'value_handle' => array($data['value_handle'])
+					);
+				}
+
 				for($i = 0, $ii = count($data['key_value']); $i < $ii; $i++) {
 					$this->buildPair($dl, $data['key_value'][$i], $data['value_value'][$i], $i);
 				}
@@ -249,8 +264,197 @@
 		Output:
 	-------------------------------------------------------------------------*/
 
+		public function fetchIncludableElements() {
+			return array(
+				$this->get('element_name'),
+				$this->get('element_name') . ': named-keys'
+			);
+		}
+
 		public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null) {
 
+			if(!is_array($data) || empty($data)) return;
+
+			$field = new XMLElement($this->get('element_name'));
+			$field->setAttribute('mode',
+				($mode == "named-keys") ? $mode : 'normal'
+			);
+
+			for($i = 0, $ii = count($data['key_handle']); $i < $ii; $i++) {
+
+				$key = new XMLElement(
+					($mode == "named-keys") ? $data['key_handle'][$i] : 'key'
+				);
+
+				$key->setAttribute('handle', $data['key_handle'][$i]);
+				$key->setAttribute('name',
+					General::sanitize($data['key_value'][$i])
+				);
+
+				$value = new XMLElement('value');
+				$value->setAttribute('handle', $data['value_handle'][$i]);
+				$value->setValue(
+					General::sanitize($data['value_value'][$i])
+				);
+
+				$key->appendChild($value);
+				$field->appendChild($key);
+			}
+
+			$wrapper->appendChild($field);
+		}
+
+		/*
+		**	At this stage we will just return the Key's
+		*/
+		public function getParameterPoolValue($data) {
+			if(!is_array($data['key_handle'])) return $data['key_handle'];
+
+			return implode(', ', $data['key_handle']);
+		}
+
+		public function prepareTableValue($data, XMLElement $link = null) {
+			if(is_null($data)) return __('None');
+
+			$values = is_array($data['value_value'])
+						? implode(', ', $data['value_value'])
+						: $data['value_value'];
+
+			return parent::prepareTableValue(array('value' => $values), $link);
+		}
+
+	/*-------------------------------------------------------------------------
+		Filtering:
+	-------------------------------------------------------------------------*/
+
+		public function displayDatasourceFilterPanel(&$wrapper, $data = null, $errors = null, $prefix = null, $postfix = null) {
+			return parent::displayDatasourceFilterPanel($wrapper, $data, $errors, $prefix, $postfix);
+		}
+
+		/*
+		**	Accepted Filter options at this stage:
+		**
+		**	colour			Key
+		**	v: red			Value
+		**	ke: colour=red	Key Equals
+		*/
+		public function buildDSRetrivalSQL($data, &$joins, &$where, $andOperation = false) {
+
+			$field_id = $this->get('id');
+
+			#	Value filter
+			if (preg_match('/^value:.*/', $data[0])) {
+				$this->_key++;
+
+				#	Split all of the possible combos
+				$data[0] = trim(str_replace('value:', '', $this->cleanValue($data[0])));
+
+				$joins .= "
+					LEFT JOIN
+						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+					ON
+						(e.id = t{$field_id}_{$this->_key}.entry_id)
+				";
+
+				$value = implode("','", $data);
+
+				#	Build the wheres
+				$where .= "
+					AND (
+						t{$field_id}_{$this->_key}.value_value IN ('{$value}')
+						OR
+						t{$field_id}_{$this->_key}.value_handle IN ('{$value}')
+					)
+				";
+			}
+
+			#	Key equals filter
+			else if (preg_match('/^key-equals:.*/', $data[0])) {
+				$this->_key++;
+
+				#	Split all of the possible combos
+				$data[0] = trim(str_replace('key-equals:', '', $this->cleanValue($data[0])));
+
+				$joins .= "
+					LEFT JOIN
+						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+					ON
+						(e.id = t{$field_id}_{$this->_key}.entry_id)
+				";
+
+				#	Get all the keys/values
+				$keys = array();
+				$values = array();
+
+				foreach($data as $filter) {
+					$keys = array_merge($keys, preg_split('/=\w+[,+-\s]*\w+/', $filter, null, 1));
+					$values = array_merge($values, preg_split('/\w+[,+-\s]*\w+=/', $filter, null, 1));
+				}
+
+				$key = implode("','", $keys);
+				$value = implode("','", $values);
+
+				#	Build the wheres
+				$where .= "
+					AND (
+						t{$field_id}_{$this->_key}.key_value IN ('{$key}')
+						OR
+						t{$field_id}_{$this->_key}.key_handle IN ('{$key}')
+					)
+					AND (
+						t{$field_id}_{$this->_key}.value_value IN ('{$value}')
+						OR
+						t{$field_id}_{$this->_key}.value_handle IN ('{$value}')
+					)
+				";
+			}
+
+			elseif ($andOperation) {
+				foreach ($data as $value) {
+					$this->_key++;
+					$value = $this->cleanValue($value);
+					$joins .= "
+						LEFT JOIN
+							`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+							ON (e.id = t{$field_id}_{$this->_key}.entry_id)
+					";
+					$where .= "
+						AND	(
+							t{$field_id}_{$this->_key}.key_value = '{$value}'
+							OR
+							t{$field_id}_{$this->_key}.key_handle = '{$value}'
+						)
+					";
+				}
+
+			}
+
+			#	Default Key match
+			else {
+				if (!is_array($data)) $data = array($data);
+
+				foreach ($data as &$value) {
+					$value = $this->cleanValue($value);
+				}
+
+				$this->_key++;
+				$data = implode("', '", $data);
+				$joins .= "
+					LEFT JOIN
+						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+					ON
+						(e.id = t{$field_id}_{$this->_key}.entry_id)
+				";
+				$where .= "
+					AND	(
+						t{$field_id}_{$this->_key}.key_value IN ('{$data}')
+						OR
+						t{$field_id}_{$this->_key}.key_handle IN ('{$data}')
+					)
+				";
+			}
+
+			return true;
 		}
 
 	}
