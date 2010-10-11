@@ -82,10 +82,11 @@
 		background: #FF0000;
 		border-color: #FFF;
 	}
-	
+
 /*
-	Error Styles
+	Symphony Form Overrides
 */
+
 	div.field-metakeys #error p {
 		clear: both;
 		margin: 0;

@@ -84,10 +84,6 @@
 			$dl->appendChild($dd);
 		}
 
-		public function isHandlised($value) {
-			return Lang::createHandle($value) == $value;
-		}
-
 	/*-------------------------------------------------------------------------
 		Settings:
 	-------------------------------------------------------------------------*/
@@ -335,8 +331,8 @@
 		**	Accepted Filter options at this stage:
 		**
 		**	colour			Key
-		**	v: red			Value
-		**	ke: colour=red	Key Equals
+		**	value: red		Value
+		**	key-equals: 	colour=red	Key Equals
 		*/
 		public function buildDSRetrivalSQL($data, &$joins, &$where, $andOperation = false) {
 

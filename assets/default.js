@@ -9,7 +9,7 @@ jQuery(document).ready(function() {
 
 		$controls = jQuery('<a />', {
 			'class': 'control add',
-			'text': 'Add Pair +',
+			'text': 'Add New Pair +',
 		});
 
 		$remove = jQuery('<a />', {
