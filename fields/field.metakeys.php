@@ -252,7 +252,6 @@
 				$result['key_value'][$i] = $data['key'][$i];
 				$result['value_handle'][$i] = Lang::createHandle($data['value'][$i]);
 				$result['value_value'][$i] = $data['value'][$i];
-				$result['sortorder'][$i] = $i + 1;
 			}
 
 			return $result;
