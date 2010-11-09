@@ -200,13 +200,12 @@
 				$this->buildPair($dl);
 			}
 
-			$label->appendChild($dl);
+			$wrapper->appendChild($label);
+			$wrapper->appendChild($dl);
 
 			if ($error != null) {
-				$label = Widget::wrapFormElementWithError($label, $error);
+				$wrapper = Widget::wrapFormElementWithError($wrapper, $error);
 			}
-
-			$wrapper->appendChild($label);
 		}
 
 		public function checkPostFieldData($data, &$message = null, $entry_id = null) {

@@ -11,7 +11,7 @@
 
 	div.field-metakeys dt{
 		margin: 10px 0;
-		clear: right;
+		position: relative;
 	}
 
 	div.field-metakeys dd {
@@ -24,13 +24,9 @@
 
 	div.field-metakeys input {
 		display: block;
-		margin-right: 10px;
+		margin-right: 26px;
 		width: 80%;
 		float: right;
-	}
-
-	div.field-metakeys dd input {
-		margin-right: 26px;
 	}
 
 	div.field-metakeys input:focus {
@@ -45,12 +41,16 @@
 		background: #F5F5F3;
 		border: 1px solid #E4E4DE;
 		padding: 4px 0;
-		float: left;
+		display: block;
+		height: 1.8em;
+		position: relative;
 		width: 99.5%;
+		margin-bottom: 1.75em;
 	}
 
 	div.field-metakeys .control {
-		float: right;
+		position: absolute;
+		right: 0;
 		border-radius: 1em;
 		-moz-border-radius: 1em;
 		-webkit-border-radius: 1em;
@@ -91,4 +91,8 @@
 		clear: both;
 		margin: 0;
 		padding: 1em 0 0;
+	}
+
+	div.field-metakeys label {
+		margin-bottom: .25em;
 	}
