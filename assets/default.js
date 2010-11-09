@@ -1,17 +1,15 @@
 jQuery(document).ready(function() {
 	jQuery('div.field-metakeys').each(function() {
-		var $container = jQuery(this);
+		var $container = jQuery(this),
 
 		//	Setup some jQuery objects
 		$controls_container = jQuery('<div />', {
 			'class': 'control-bar'
-		});
-
+		}),
 		$controls = jQuery('<a />', {
 			'class': 'control add',
 			'text': 'Add New Pair +',
-		});
-
+		}),
 		$remove = jQuery('<a />', {
 			'class': 'control remove',
 			'text': 'x',

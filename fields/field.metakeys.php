@@ -30,7 +30,7 @@
 							`value_value` TEXT NOT NULL,
 							PRIMARY KEY (`id`),
 							KEY `entry_id` (`entry_id`)
-						) TYPE=MyISAM DEFAULT CHARSET=utf8;
+						) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 					", $this->get('id')
 				));
 
@@ -159,6 +159,7 @@
 
 			$element_name = $this->get('element_name');
 			$classes = array();
+
 			$dl = new XMLElement('dl');
 
 			#	Label
@@ -255,6 +256,18 @@
 			return $result;
 		}
 
+		public function getExampleFormMarkup(){
+			$label = Widget::Label($this->get('label'));
+			$label->appendChild(
+				Widget::Input('fields['.$this->get('element_name').'][key][]')
+			);
+			$label->appendChild(
+				Widget::Input('fields['.$this->get('element_name').'][value][]')
+			);
+
+			return $label;
+		}
+
 	/*-------------------------------------------------------------------------
 		Output:
 	-------------------------------------------------------------------------*/
@@ -303,9 +316,9 @@
 		**	At this stage we will just return the Key's
 		*/
 		public function getParameterPoolValue($data) {
-			if(!is_array($data['key_handle'])) return $data['key_handle'];
-
-			return implode(', ', $data['key_handle']);
+			return is_array($data['key_handle'])
+						? implode(', ', $data['key_handle'])
+						: $data['key_handle'];
 		}
 
 		public function prepareTableValue($data, XMLElement $link = null) {

@@ -6,6 +6,7 @@
 			return array(
 				'name' => 'Field: Meta Keys',
 				'version' => '0.9',
+				'type' => 'Field, Interface',
 				'release-date' => '2010-10-11',
 				'author' => array(
 					'name' => 'Brendan Abbott',
@@ -50,7 +51,7 @@
 						`default_keys` TEXT DEFAULT NULL,
 					  	PRIMARY KEY  (`id`),
 					  	UNIQUE KEY `field_id` (`field_id`)
-					) TYPE=MyISAM DEFAULT CHARSET=utf8;
+					) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 				");
 			}
 			catch (Exception $ex) {
