@@ -22,7 +22,8 @@
 		border-bottom: none;
 	}
 
-	div.field-metakeys input {
+	div.field-metakeys dl dt input,
+	div.field-metakeys dl dd input {
 		display: block;
 		margin-right: 26px;
 		width: 80%;

@@ -5,11 +5,11 @@ identified by a user generated key. You can set default keys, and choose differe
 output types by key or named key. It attempts to provide some handy filtering hooks
 for your datasources as well.
 
-- Version: 0.9
-- Date: 11 October 2010
+- Version: 0.9.1
+- Date: 10 November 2010
 - Requirements: Symphony 2.0.8 or newer, <http://github.com/symphonycms/symphony-2/>
 - Author: Brendan Abbott, brendan@bloodbone.ws
-- GitHub Repository: <http://github.com/brendo/field_metakeys
+- GitHub Repository: <http://github.com/brendo/field_metakeys>
 
 ## INSTALLATION
 
@@ -55,5 +55,11 @@ the `Shape` is `blue`.
 
 ## CHANGE LOG
 
-11-10-2010 *0.9*:	
+*0.9.1* (10th November 2010)
+
+- Few CSS Tweaks to make Meta Keys play better with other fields
+- Fix Safari autofocus bug
+
+*0.9* (11th October 2010)
+
 - Initial Public Release
