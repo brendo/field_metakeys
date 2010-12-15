@@ -280,13 +280,21 @@
 		}
 
 		public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null) {
-
 			if(!is_array($data) || empty($data)) return;
 
 			$field = new XMLElement($this->get('element_name'));
 			$field->setAttribute('mode',
 				($mode == "named-keys") ? $mode : 'normal'
 			);
+
+			if(!is_array($data['key_handle'])) {
+				$data = array(
+					'key_handle' => array($data['key_handle']),
+					'key_value' => array($data['key_value']),
+					'value_handle' => array($data['value_handle']),
+					'value_value' => array($data['value_value'])
+				);
+			}
 
 			for($i = 0, $ii = count($data['key_handle']); $i < $ii; $i++) {
 
