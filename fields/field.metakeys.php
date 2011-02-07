@@ -154,7 +154,7 @@
 		Input:
 	-------------------------------------------------------------------------*/
 
-		public function displayPublishPanel(&$wrapper, $data = null, $error = null, $prefix = null, $postfix = null, $entry_id = null) {
+		public function displayPublishPanel(XMLElement &$wrapper, $data = null, $error = null, $prefix = null, $postfix = null, $entry_id = null) {
 			extension_field_metakeys::appendAssets();
 
 			$element_name = $this->get('element_name');
@@ -279,7 +279,7 @@
 			);
 		}
 
-		public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null) {
+		public function appendFormattedElement(XMLElement &$wrapper, $data, $encode = false, $mode = null, $entry_id = null) {
 			if(!is_array($data) || empty($data)) return;
 
 			$field = new XMLElement($this->get('element_name'));
@@ -342,10 +342,6 @@
 	/*-------------------------------------------------------------------------
 		Filtering:
 	-------------------------------------------------------------------------*/
-
-		public function displayDatasourceFilterPanel(&$wrapper, $data = null, $errors = null, $prefix = null, $postfix = null) {
-			return parent::displayDatasourceFilterPanel($wrapper, $data, $errors, $prefix, $postfix);
-		}
 
 		/*
 		**	Accepted Filter options at this stage:
