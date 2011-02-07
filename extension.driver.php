@@ -20,27 +20,6 @@
 		Installation:
 	-------------------------------------------------------------------------*/
 
-		public function uninstall(){
-			if(parent::uninstall() == true){
-				try {
-					Symphony::Database()->query("DROP TABLE `tbl_fields_metakeys`");
-
-					return true;
-				}
-				catch (Exception $ex) {
-					$extension = $this->about();
-					$this->pageAlert(__('An error occurred while uninstalling %s. %s', array($extension['name'], $ex->getMessage())), Alert::ERROR);
-					return false;
-				}
-			}
-
-			return false;
-		}
-
-		public function update($previousVersion){
-			return true;
-		}
-
 		public function install(){
 			try {
 				Symphony::Database()->query("
@@ -61,6 +40,27 @@
 			}
 
 			return true;
+		}
+
+		public function update($previousVersion){
+			return true;
+		}
+
+		public function uninstall(){
+			if(parent::uninstall() == true){
+				try {
+					Symphony::Database()->query("DROP TABLE `tbl_fields_metakeys`");
+
+					return true;
+				}
+				catch (Exception $ex) {
+					$extension = $this->about();
+					$this->pageAlert(__('An error occurred while uninstalling %s. %s', array($extension['name'], $ex->getMessage())), Alert::ERROR);
+					return false;
+				}
+			}
+
+			return false;
 		}
 
 	/*-------------------------------------------------------------------------
