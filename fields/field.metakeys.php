@@ -21,7 +21,7 @@
 		public function createTable() {
 			try {
 				Symphony::Database()->query(sprintf("
-						CREATE TABLE IF NOT EXISTS `tbl_entries_data_%s` (
+						CREATE TABLE IF NOT EXISTS `tbl_entries_data_%d` (
 							`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 							`entry_id` INT(11) UNSIGNED NOT NULL,
 							`key_handle` VARCHAR(255) NOT NULL,
@@ -95,7 +95,6 @@
 		 * @param array $errors - array with field errors, $errors['name-of-field-element']
 		 */
 		public function displaySettingsPanel(&$wrapper, $errors = null) {
-
 			##	Initialize field settings based on class defaults (name, placement)
 			parent::displaySettingsPanel($wrapper, $errors);
 
@@ -156,9 +155,6 @@
 
 		public function displayPublishPanel(XMLElement &$wrapper, $data = null, $error = null, $prefix = null, $postfix = null, $entry_id = null) {
 			extension_field_metakeys::appendAssets();
-
-			$element_name = $this->get('element_name');
-			$classes = array();
 
 			$dl = new XMLElement('dl');
 
