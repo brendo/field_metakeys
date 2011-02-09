@@ -66,14 +66,14 @@
 		public function buildPair(XMLElement &$dl, $key = null, $value = null, $i = '') {
 			$element_name = $this->get('element_name');
 
-			$dt = new XMLElement('dt', 'Key');
+			$dt = new XMLElement('dt', __('Key'));
 			$dt->appendChild(
 				Widget::Input(
 					"fields[$element_name][key][$i]", $key
 				)
 			);
 
-			$dd = new XMLElement('dd', 'Value');
+			$dd = new XMLElement('dd', __('Value'));
 			$dd->appendChild(
 				Widget::Input(
 					"fields[$element_name][value][$i]", $value
