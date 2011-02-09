@@ -26,5 +26,11 @@
 
 		'Default Keys' => 
 		'Atribute Implicite',
+	
+		'Key' => 
+		'Atribut',
+	
+		'Value' => 
+		'Valoare',
 
 	);
