@@ -5,8 +5,8 @@ identified by a user generated key. You can set default keys, and choose differe
 output types by key or named key. It attempts to provide some handy filtering hooks
 for your datasources as well.
 
-- Version: 0.9.2
-- Date: 15 December 2010
+- Version: 0.9.3
+- Date: 9th March 2011
 - Requirements: Symphony 2.0.8 or newer, <http://github.com/symphonycms/symphony-2/>
 - Author: Brendan Abbott, brendan@bloodbone.ws
 - GitHub Repository: <http://github.com/brendo/field_metakeys>
@@ -54,6 +54,11 @@ This will return all entries where the `Colour` key equals `red`. You can chain 
 the `Shape` is `blue`.
 
 ## CHANGE LOG
+
+*0.9.3* (9th March 2011)
+
+- Cleanup of extension for S2.2
+- Added Romanian translation (thanks Vlad)
 
 *0.9.2* (15th December 2010)
 
