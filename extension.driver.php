@@ -55,7 +55,7 @@
 				}
 				catch (Exception $ex) {
 					$extension = $this->about();
-					$this->pageAlert(__('An error occurred while uninstalling %s. %s', array($extension['name'], $ex->getMessage())), Alert::ERROR);
+					Administration::instance()->Page->pageAlert(__('An error occurred while uninstalling %s. %s', array($extension['name'], $ex->getMessage())), Alert::ERROR);
 					return false;
 				}
 			}
