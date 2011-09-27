@@ -24,10 +24,10 @@
 						CREATE TABLE IF NOT EXISTS `tbl_entries_data_%d` (
 							`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 							`entry_id` INT(11) UNSIGNED NOT NULL,
-							`key_handle` VARCHAR(255) NOT NULL,
-							`key_value` TEXT NOT NULL,
+							`key_handle` VARCHAR(255) NULL,
+							`key_value` TEXT NULL,
 							`value_handle` VARCHAR(255) DEFAULT NULL,
-							`value_value` TEXT NOT NULL,
+							`value_value` TEXT NULL,
 							PRIMARY KEY (`id`),
 							KEY `entry_id` (`entry_id`)
 						) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -253,7 +253,7 @@
 
 			for($i = 0, $ii = count($data['key']); $i < $ii; $i++) {
     			##	If there's no values, don't save the keys:
-                if(!empty($data['value'][$i]) || $delete_empty_keys == false)
+                if(!empty($data['key'][$i]) && (!empty($data['value'][$i]) || $delete_empty_keys == false))
                 {
                     $result['key_handle'][$i] = Lang::createHandle($data['key'][$i]);
                     $result['key_value'][$i] = $data['key'][$i];

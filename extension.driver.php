@@ -46,6 +46,16 @@
 		public function update($previousVersion){
             if(version_compare($previousVersion, '0.9.4', '<')) {
                 Symphony::Database()->query('ALTER TABLE `tbl_fields_metakeys` ADD `delete_empty_keys` INT(1) NOT NULL DEFAULT \'1\';');
+                // Get all the fields that are meta-keys:
+                $ids = Symphony::Database()->fetchCol('id', 'SELECT `id` FROM `tbl_fields` WHERE `type` = \'metakeys\';');
+                foreach($ids as $id)
+                {
+                    Symphony::Database()->query('ALTER TABLE  `tbl_entries_data_'.$id.'`
+                        CHANGE `key_handle` `key_handle` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+                        CHANGE  `key_value`  `key_value` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+                        CHANGE  `value_handle`  `value_handle` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+                        CHANGE  `value_value`  `value_value` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL');
+                }
             }
 			return true;
 		}
