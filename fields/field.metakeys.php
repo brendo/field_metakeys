@@ -30,7 +30,7 @@
 							`value_value` TEXT NULL,
 							PRIMARY KEY (`id`),
 							KEY `entry_id` (`entry_id`)
-						) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+						) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 					", $this->get('id')
 				));
 
@@ -124,15 +124,15 @@
 
 			$wrapper->appendChild($group);
 
-            ##  Automatic delete
-            $label = Widget::Label();
-            $input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
+			## Automatic delete
+			$label = Widget::Label();
+			$input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
 
-            if ($this->get('delete_empty_keys') == '1') $input->setAttribute('checked', 'checked');
+			if ($this->get('delete_empty_keys') == '1') $input->setAttribute('checked', 'checked');
 
-            $label->setValue(__('%s Automaticly delete empty keys', array($input->generate())));
+			$label->setValue(__('%s Automatically delete empty keys', array($input->generate())));
 
-            $wrapper->appendChild($label);
+			$wrapper->appendChild($label);
 
 			##	Defaults
 			$this->appendRequiredCheckbox($wrapper);
@@ -154,7 +154,7 @@
 				'field_id' => $id,
 				'validator' => $this->get('validator'),
 				'default_keys' => $this->get('default_keys'),
-                'delete_empty_keys' => $this->get('delete_empty_keys') == 'yes' ? '1' : '0'
+				'delete_empty_keys' => $this->get('delete_empty_keys') == 'yes' ? '1' : '0'
 			);
 
 			return Symphony::Database()->insert($fields, "tbl_fields_{$handle}", true);
@@ -249,21 +249,20 @@
 			$status = self::__OK__;
 
 			$result = array();
-            $delete_empty_keys = $this->get('delete_empty_keys') == 1;
+			$delete_empty_keys = $this->get('delete_empty_keys') == 1;
 
 			for($i = 0, $ii = count($data['key']); $i < $ii; $i++) {
-    			##	If there's no values, don't save the keys:
-                if(!empty($data['key'][$i]) && (!empty($data['value'][$i]) || $delete_empty_keys == false))
-                {
-                    $result['key_handle'][$i] = Lang::createHandle($data['key'][$i]);
-                    $result['key_value'][$i] = $data['key'][$i];
-                    $result['value_handle'][$i] = Lang::createHandle($data['value'][$i]);
-                    $result['value_value'][$i] = $data['value'][$i];
-                }
+				##	If there's no values, don't save the keys:
+				if(!empty($data['key'][$i]) && (!empty($data['value'][$i]) || $delete_empty_keys == false)) {
+					$result['key_handle'][$i] = Lang::createHandle($data['key'][$i]);
+					$result['key_value'][$i] = $data['key'][$i];
+					$result['value_handle'][$i] = Lang::createHandle($data['value'][$i]);
+					$result['value_value'][$i] = $data['value'][$i];
+				}
 			}
 
-            ##	If there's no values, return null:
-            if(empty($result)) return null;
+			##	If there's no values, return null:
+			if(empty($result)) return null;
 
 			return $result;
 		}
@@ -360,7 +359,7 @@
 		**
 		**	colour			Key
 		**	value: red		Value
-		**	key-equals: 	colour=red	Key Equals
+		**	key-equals:		colour=red	Key Equals
 		*/
 		public function buildDSRetrivalSQL($data, &$joins, &$where, $andOperation = false) {
 
@@ -443,7 +442,7 @@
 							ON (e.id = t{$field_id}_{$this->_key}.entry_id)
 					";
 					$where .= "
-						AND	(
+						AND (
 							t{$field_id}_{$this->_key}.key_value = '{$value}'
 							OR
 							t{$field_id}_{$this->_key}.key_handle = '{$value}'
@@ -470,7 +469,7 @@
 						(e.id = t{$field_id}_{$this->_key}.entry_id)
 				";
 				$where .= "
-					AND	(
+					AND (
 						t{$field_id}_{$this->_key}.key_value IN ('{$data}')
 						OR
 						t{$field_id}_{$this->_key}.key_handle IN ('{$data}')
