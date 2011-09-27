@@ -5,9 +5,9 @@
 		public function about(){
 			return array(
 				'name' => 'Field: Meta Keys',
-				'version' => '0.9.3',
+				'version' => '0.9.4',
 				'type' => 'Field, Interface',
-				'release-date' => '2011-03-09',
+				'release-date' => '2011-09-27',
 				'author' => array(
 					'name' => 'Brendan Abbott',
 					'website' => 'http://www.bloodbone.ws',
@@ -28,6 +28,7 @@
 						`field_id` INT(11) UNSIGNED NOT NULL,
 						`validator` VARCHAR(255) DEFAULT NULL,
 						`default_keys` TEXT DEFAULT NULL,
+						`delete_empty_keys` INT (1) NOT NULL DEFAULT '1',
 					  	PRIMARY KEY  (`id`),
 					  	UNIQUE KEY `field_id` (`field_id`)
 					) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -43,6 +44,9 @@
 		}
 
 		public function update($previousVersion){
+            if(version_compare($previousVersion, '0.9.4', '<')) {
+                Symphony::Database()->query('ALTER TABLE `tbl_fields_metakeys` ADD `delete_empty_keys` INT(1) NOT NULL DEFAULT \'1\';');
+            }
 			return true;
 		}
 

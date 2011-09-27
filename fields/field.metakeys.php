@@ -124,6 +124,16 @@
 
 			$wrapper->appendChild($group);
 
+            ##  Automatic delete
+            $label = Widget::Label();
+            $input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
+
+            if ($this->get('delete_empty_keys') == '1') $input->setAttribute('checked', 'checked');
+
+            $label->setValue(__('%s Automaticly delete empty keys', array($input->generate())));
+
+            $wrapper->appendChild($label);
+
 			##	Defaults
 			$this->appendRequiredCheckbox($wrapper);
 			$this->appendShowColumnCheckbox($wrapper);
@@ -143,7 +153,8 @@
 			$fields = array(
 				'field_id' => $id,
 				'validator' => $this->get('validator'),
-				'default_keys' => $this->get('default_keys')
+				'default_keys' => $this->get('default_keys'),
+                'delete_empty_keys' => $this->get('delete_empty_keys') == 'yes' ? '1' : '0'
 			);
 
 			return Symphony::Database()->insert($fields, "tbl_fields_{$handle}", true);
@@ -237,17 +248,22 @@
 		public function processRawFieldData($data, &$status, $simulate = false, $entry_id = null) {
 			$status = self::__OK__;
 
-			##	If there's no values, don't save the keys, just return
-			if(empty($data['value'][0])) return null;
-
 			$result = array();
+            $delete_empty_keys = $this->get('delete_empty_keys') == 1;
 
 			for($i = 0, $ii = count($data['key']); $i < $ii; $i++) {
-				$result['key_handle'][$i] = Lang::createHandle($data['key'][$i]);
-				$result['key_value'][$i] = $data['key'][$i];
-				$result['value_handle'][$i] = Lang::createHandle($data['value'][$i]);
-				$result['value_value'][$i] = $data['value'][$i];
+    			##	If there's no values, don't save the keys:
+                if(!empty($data['value'][$i]) || $delete_empty_keys == false)
+                {
+                    $result['key_handle'][$i] = Lang::createHandle($data['key'][$i]);
+                    $result['key_value'][$i] = $data['key'][$i];
+                    $result['value_handle'][$i] = Lang::createHandle($data['value'][$i]);
+                    $result['value_value'][$i] = $data['value'][$i];
+                }
 			}
+
+            ##	If there's no values, return null:
+            if(empty($result)) return null;
 
 			return $result;
 		}
