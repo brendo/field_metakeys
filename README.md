@@ -5,9 +5,9 @@ identified by a user generated key. You can set default keys, and choose differe
 output types by key or named key. It attempts to provide some handy filtering hooks
 for your datasources as well.
 
-- Version: 0.9.4
-- Date: 27th September 2011
-- Requirements: Symphony 2.0.8 or newer, <http://github.com/symphonycms/symphony-2/>
+- Version: 1.0
+- Date: unreleased
+- Requirements: Symphony 2.3 or newer, <http://github.com/symphonycms/symphony-2/>
 - Author: Brendan Abbott, brendan@bloodbone.ws
 - GitHub Repository: <http://github.com/brendo/field_metakeys>
 
@@ -52,28 +52,3 @@ This will return all entries where one Pair exists that has the value of red.
 This will return all entries where the `Colour` key equals `red`. You can chain this as well with
 `key-equals: colour=red, shape=blue` that will get all entries where the `Colour` is `red` and
 the `Shape` is `blue`.
-
-## CHANGE LOG
-
-*0.9.4* (27th September 2011)
-
-- Explicitly state UTF-8 for tables (thanks @kanduvisla)
-- Fix bug when deleting empty keys (thanks @kanduvisla)
-
-*0.9.3* (9th March 2011)
-
-- Cleanup of extension for S2.2
-- Added Romanian translation (thanks Vlad)
-
-*0.9.2* (15th December 2010)
-
-- Fix output error when only one key/value pair was added
-
-*0.9.1* (10th November 2010)
-
-- Few CSS Tweaks to make Meta Keys play better with other fields
-- Fix Safari autofocus bug
-
-*0.9* (11th October 2010)
-
-- Initial Public Release
