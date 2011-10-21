@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="field_metakeys">
+	<name>Meta Keys</name>
+	<description>The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</description>
+	<repo type="github">https://github.com/brendo/field_metakeys</repo>
+	<url type="discuss">http://symphony-cms.com/discuss/thread/52886/</url>
+	<types>
+		<type>Field Types</type>
+	</types>
+	<authors>
+		<author>
+			<name github="brendo" symphony="brendo">Brendan Abbott</name>
+			<website>http://www.bloodbone.ws</website>
+		</author>
+	</authors>
+	<media>
+		<item type="image" url="http://symphonyextensions.com/brendo/field_metakeys/media/field_metakeys.png">Meta Keys: The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</item>
+	</media>
+	<releases>
+		<release version="0.9.4" date="2011-09-27" min="2.1.0" max="2.2.4">
+			- Explicitly state UTF-8 for tables (thanks @kanduvisla)
+			- Fix bug when deleting empty keys (thanks @kanduvisla)
+		</release>
+		<release version="0.9.3" date="2011-03-09" min="2.1.0">
+			- Cleanup of extension for S2.2
+			- Added Romanian translation (thanks Vlad)
+		</release>
+		<release version="0.9.2" date="2010-12-15" min="2.1.0">
+			- Fix output error when only one key/value pair was added
+		</release>
+		<release version="0.9.1" date="2010-11-10" min="2.1.0">
+			- Few CSS Tweaks to make Meta Keys play better with other fields
+			- Fix Safari autofocus bug
+		</release>
+		<release version="0.9" date="2010-10-11" min="2.1.0">
+			- Initial Public Release
+		</release>
+	</releases>
+</extension>
