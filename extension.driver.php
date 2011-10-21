@@ -2,20 +2,6 @@
 
 	Class extension_field_metakeys extends Extension{
 
-		public function about(){
-			return array(
-				'name' => 'Field: Meta Keys',
-				'version' => '0.9.4',
-				'type' => 'Field, Interface',
-				'release-date' => '2011-09-27',
-				'author' => array(
-					'name' => 'Brendan Abbott',
-					'website' => 'http://www.bloodbone.ws',
-					'email' => 'brendan@bloodbone.ws'
-				)
-			);
-		}
-
 	/*-------------------------------------------------------------------------
 		Installation:
 	-------------------------------------------------------------------------*/
