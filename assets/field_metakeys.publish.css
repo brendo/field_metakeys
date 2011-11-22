@@ -52,9 +52,9 @@
 	div.field-metakeys .control {
 		position: absolute;
 		right: 0;
-		border-radius: 1em;
 		-moz-border-radius: 1em;
 		-webkit-border-radius: 1em;
+		border-radius: 1em;
 		border: 1px solid #E4E4E2;
 		background: #EBEBE9;
 		margin-right: 12px;

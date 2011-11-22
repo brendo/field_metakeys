@@ -5,8 +5,8 @@ identified by a user generated key. You can set default keys, and choose differe
 output types by key or named key. It attempts to provide some handy filtering hooks
 for your datasources as well.
 
-- Version: 0.9.4
-- Date: 27th September 2011
+- Version: 0.9.5
+- Date: 22nd November 2011
 - Requirements: Symphony 2.0.8 or newer, <http://github.com/symphonycms/symphony-2/>
 - Author: Brendan Abbott, brendan@bloodbone.ws
 - GitHub Repository: <http://github.com/brendo/field_metakeys>
@@ -50,10 +50,24 @@ This will return all entries where one Pair exists that has the value of red.
 
 ##### `key-equals: colour=red`
 This will return all entries where the `Colour` key equals `red`. You can chain this as well with
-`key-equals: colour=red, shape=blue` that will get all entries where the `Colour` is `red` and
-the `Shape` is `blue`.
+`key-equals: colour=red, shape=square` that will get all entries where the `Colour` is `red` and
+the `Shape` is `square`.
+
+## XMLImporter support
+
+Since the `0.9.5` release, this Field now integrates with XMLImporter. It expects a comma delimited
+string, eg. `red, square`. This will populate the first key with `red` and the second key with `square`.
+
+If there are default keys, these will be prefilled first. So if the Default Keys for my Meta Keys field
+were `Colour, Shape`, the previous string would result in `Colour: red, Shape: square`. If the
+string contained more values than keys, additional keys are named as `Key $i`, where is `$i` is the
+index. So `red, square, $10.00` would result in `Colour: red, Shape: square, Key 3: $10.00`.
 
 ## CHANGE LOG
+
+*0.9.5* (22nd November 2011)
+
+- Add `prepareImportValue` function for the XMLImporter
 
 *0.9.4* (27th September 2011)
 

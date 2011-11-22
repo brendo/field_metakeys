@@ -5,9 +5,9 @@
 		public function about(){
 			return array(
 				'name' => 'Field: Meta Keys',
-				'version' => '0.9.4',
+				'version' => '0.9.5',
 				'type' => 'Field, Interface',
-				'release-date' => '2011-09-27',
+				'release-date' => '2011-11-22',
 				'author' => array(
 					'name' => 'Brendan Abbott',
 					'website' => 'http://www.bloodbone.ws',
