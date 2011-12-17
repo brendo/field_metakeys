@@ -2,6 +2,10 @@
 
 	if(!defined('__IN_SYMPHONY__')) die('<h2>Symphony Error</h2><p>You cannot directly access this file</p>');
 
+	/**
+	 * @package field_metakeys
+	 */
+
 	Class fieldMetaKeys extends Field {
 
 		public function __construct(&$parent) {
@@ -95,7 +99,7 @@
 		 * @param array $errors - array with field errors, $errors['name-of-field-element']
 		 */
 		public function displaySettingsPanel(&$wrapper, $errors = null) {
-			##	Initialize field settings based on class defaults (name, placement)
+			// Initialize field settings based on class defaults (name, placement)
 			parent::displaySettingsPanel($wrapper, $errors);
 
 			$order = $this->get('sortorder');
@@ -103,7 +107,7 @@
 			$group = new XMLElement('div');
 			$group->setAttribute('class', 'group');
 
-			##	Default Keys
+			// Default Keys
 			$label = Widget::Label(__('Default Keys'));
 			$label->appendChild(
 				new XMLElement('i', __('Optional'))
@@ -114,7 +118,7 @@
 
 			$group->appendChild($label);
 
-			##	Validator
+			// Validator
 			$div = new XMLElement('div');
 			$this->buildValidationSelect(
 				$div, $this->get('validator'), "fields[{$order}][validator]"
@@ -124,7 +128,7 @@
 
 			$wrapper->appendChild($group);
 
-			## Automatic delete
+			// Automatic delete
 			$label = Widget::Label();
 			$input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
 
@@ -134,7 +138,7 @@
 
 			$wrapper->appendChild($label);
 
-			##	Defaults
+			// Defaults
 			$this->appendRequiredCheckbox($wrapper);
 			$this->appendShowColumnCheckbox($wrapper);
 		}
@@ -169,13 +173,13 @@
 
 			$dl = new XMLElement('dl');
 
-			#	Label
+			// Label
 			$label = Widget::Label($this->get('label'));
 			if ($this->get('required') == 'no') {
 				$label->appendChild(new XMLElement('i', __('Optional')));
 			}
 
-			#	Loop through the default keys if this is a new entry.
+			// Loop through the default keys if this is a new entry.
 			if(is_null($entry_id) && !is_null($this->get('default_keys'))) {
 				$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
 
@@ -184,11 +188,11 @@
 				}
 			}
 
-			#	If there is actually $data, show that
+			// If there is actually $data, show that
 			else if(!is_null($data)) {
 
-				#	If there's only one 'pair', we'll need to make them an array
-				#	so the logic remains consistant
+				// If there's only one 'pair', we'll need to make them an array
+				// so the logic remains consistant
 				if(!is_array($data['key_value'])) {
 					$data = array(
 						'key_value' => array($data['key_value']),
@@ -203,7 +207,7 @@
 				}
 			}
 
-			#	Nothing, just prepend the template
+			// Nothing, just prepend the template
 			else {
 				$this->buildPair($dl);
 			}
@@ -217,7 +221,7 @@
 		}
 
 		public function checkPostFieldData($data, &$message = null, $entry_id = null) {
-			##	Check required
+			// Check required
 			if($this->get('required') == 'yes' && (!isset($data['key']) || empty($data['value'][0]))) {
 				$message = __(
 					"'%s' is a required field.", array(
@@ -228,10 +232,10 @@
 				return self::__MISSING_FIELDS__;
 			}
 
-			##	Return if it's allowed to be empty (and is empty)
+			// Return if it's allowed to be empty (and is empty)
 			if(empty($data['value'][0])) return self::__OK__;
 
-			##	Process Validation Rules
+			// Process Validation Rules
 			if (!$this->applyValidationRules($data)) {
 				$message = __(
 					"'%s' contains invalid data. Please check the contents.", array(
@@ -245,6 +249,37 @@
 			return self::__OK__;
 		}
 
+		/**
+		 * This function takes a string after XPath has resolved in the XMLImporter
+		 * and it's job is to transform it into what the field expects as `$data`
+		 * in the `processRawFieldData` function.
+		 *
+		 * @since 0.9.5
+		 */
+		public function prepareImportValue($data, $entry_id = null) {
+			$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
+			$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
+			$results = array();
+
+			foreach($data as $key => $value) {
+				// We have keys
+				if(isset($defaults[$key])) {
+					$results['key'][$key] = $defaults[$key];
+				}
+				// Fake keys, while $key is zero based, a user doesn't
+				// understand that, hence the + 1.
+				else {
+					$results['key'][$key] = 'Key ' . $key + 1;
+				}
+
+				$results['value'][$key] = $value;
+			}
+
+			if(empty($results)) return null;
+
+			return $results;
+		}
+
 		public function processRawFieldData($data, &$status, $simulate = false, $entry_id = null) {
 			$status = self::__OK__;
 
@@ -252,7 +287,7 @@
 			$delete_empty_keys = $this->get('delete_empty_keys') == 1;
 
 			for($i = 0, $ii = count($data['key']); $i < $ii; $i++) {
-				##	If there's no values, don't save the keys:
+				// If there's no values, don't save the keys:
 				if(!empty($data['key'][$i]) && (!empty($data['value'][$i]) || $delete_empty_keys == false)) {
 					$result['key_handle'][$i] = Lang::createHandle($data['key'][$i]);
 					$result['key_value'][$i] = $data['key'][$i];
@@ -261,7 +296,7 @@
 				}
 			}
 
-			##	If there's no values, return null:
+			// If there's no values, return null:
 			if(empty($result)) return null;
 
 			return $result;
@@ -365,11 +400,11 @@
 
 			$field_id = $this->get('id');
 
-			#	Value filter
+			// Value filter
 			if (preg_match('/^value:.*/', $data[0])) {
 				$this->_key++;
 
-				#	Split all of the possible combos
+				// Split all of the possible combos
 				$data[0] = trim(str_replace('value:', '', $this->cleanValue($data[0])));
 
 				$joins .= "
@@ -381,7 +416,7 @@
 
 				$value = implode("','", $data);
 
-				#	Build the wheres
+				// Build the wheres
 				$where .= "
 					AND (
 						t{$field_id}_{$this->_key}.value_value IN ('{$value}')
@@ -391,11 +426,11 @@
 				";
 			}
 
-			#	Key equals filter
+			// Key equals filter
 			else if (preg_match('/^key-equals:.*/', $data[0])) {
 				$this->_key++;
 
-				#	Split all of the possible combos
+				// Split all of the possible combos
 				$data[0] = trim(str_replace('key-equals:', '', $this->cleanValue($data[0])));
 
 				$joins .= "
@@ -405,7 +440,7 @@
 						(e.id = t{$field_id}_{$this->_key}.entry_id)
 				";
 
-				#	Get all the keys/values
+				// Get all the keys/values
 				$keys = array();
 				$values = array();
 
@@ -417,7 +452,7 @@
 				$key = implode("','", $keys);
 				$value = implode("','", $values);
 
-				#	Build the wheres
+				// Build the wheres
 				$where .= "
 					AND (
 						t{$field_id}_{$this->_key}.key_value IN ('{$key}')
@@ -452,7 +487,7 @@
 
 			}
 
-			#	Default Key match
+			// Default Key match
 			else {
 				if (!is_array($data)) $data = array($data);
 
