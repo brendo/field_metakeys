@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extension id="field_metakeys">
+<extension id="field_metakeys" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
 	<name>Meta Keys</name>
 	<description>The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</description>
 	<repo type="github">https://github.com/brendo/field_metakeys</repo>
