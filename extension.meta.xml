@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extension id="field_metakeys">
+<extension id="field_metakeys" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
 	<name>Meta Keys</name>
 	<description>The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</description>
 	<repo type="github">https://github.com/brendo/field_metakeys</repo>
@@ -17,10 +17,14 @@
 		<item type="image" url="http://symphonyextensions.com/brendo/field_metakeys/media/field_metakeys.png">Meta Keys: The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</item>
 	</media>
 	<releases>
-		<release version="1.0" date='unreleased' min="2.3">
+		<release version="1.0" date='2012-03-27' min="2.3">
 			- Support for Symphony 2.3
+			- Update to use default Symphony duplicator
 		</release>
-		<release version="0.9.4" date="2011-09-27" min="2.1.0">
+		<release version="0.9.5" date="2011-11-22" min="2.1.0" max="2.2.5">
+			- Add `prepareImportValue` function for the XMLImporter
+		</release>
+		<release version="0.9.4" date="2011-09-27" min="2.1.0" max="2.2.5">
 			- Explicitly state UTF-8 for tables (thanks @kanduvisla)
 			- Fix bug when deleting empty keys (thanks @kanduvisla)
 		</release>
