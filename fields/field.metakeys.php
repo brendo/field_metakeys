@@ -207,7 +207,7 @@
 			if(is_null($entry_id) && !is_null($this->get('default_keys'))) {
 				$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
 
-				if(is_array($defaults) && !empty($defaults)) foreach($defaults as $key) {
+				if(is_array($defaults) && !empty($defaults)) foreach($defaults as $i => $key) {
 					$duplicator->appendChild(
 						$this->buildPair($key)
 					);
@@ -235,8 +235,8 @@
 				}
 			}
 
-			$label->appendChild($duplicator);
 			$wrapper->appendChild($label);
+			$wrapper->appendChild($duplicator);
 
 			if (!is_null($flagWithError)) {
 				$wrapper = Widget::Error($wrapper, $flagWithError);
