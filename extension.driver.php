@@ -15,7 +15,7 @@
 						`validator` VARCHAR(255) DEFAULT NULL,
 						`default_keys` TEXT DEFAULT NULL,
 						`delete_empty_keys` INT (1) NOT NULL DEFAULT '1',
-						PRIMARY KEY	 (`id`),
+						PRIMARY KEY (`id`),
 						UNIQUE KEY `field_id` (`field_id`)
 					) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 				");

@@ -66,7 +66,7 @@
 			return ($rule ? General::validateString($data['value'], $rule) : true);
 		}
 
-		public function buildPair($key = null, $value = null, $i = '') {
+		public function buildPair($key = null, $value = null, $i = '-1') {
 			$element_name = $this->get('element_name');
 
 			$li = new XMLElement('li');
@@ -83,7 +83,7 @@
 			$label = Widget::Label();
 			$label->appendChild(
 				Widget::Input(
-					"fields[$element_name][key][$i]", $key, 'text', array('placeholder' => __('Key'))
+					"fields[$element_name][$i][key]", $key, 'text', array('placeholder' => __('Key'))
 				)
 			);
 			$li->appendChild($label);
@@ -92,7 +92,7 @@
 			$label = Widget::Label();
 			$label->appendChild(
 				Widget::Input(
-					"fields[$element_name][value][$i]", $value, 'text', array('placeholder' => __('Value'))
+					"fields[$element_name][$i][value]", $value, 'text', array('placeholder' => __('Value'))
 				)
 			);
 			$li->appendChild($label);
@@ -309,13 +309,15 @@
 			$result = array();
 			$delete_empty_keys = $this->get('delete_empty_keys') == 1;
 
-			for($i = 0, $ii = count($data['key']); $i < $ii; $i++) {
-				// If there's no values, don't save the keys:
-				if(!empty($data['key'][$i]) && (!empty($data['value'][$i]) || $delete_empty_keys == false)) {
-					$result['key_handle'][$i] = Lang::createHandle($data['key'][$i]);
-					$result['key_value'][$i] = $data['key'][$i];
-					$result['value_handle'][$i] = Lang::createHandle($data['value'][$i]);
-					$result['value_value'][$i] = $data['value'][$i];
+			if(is_array($data)) foreach($data as $i => $pair) {
+				// Key is not empty AND
+				// Value is not empty OR we don't want to delete empty pairs
+				// Then skip adding that pair in the result
+				if(!empty($pair['key']) && (!empty($pair['value']) || $delete_empty_keys == false)) {
+					$result['key_handle'][$i] = Lang::createHandle($pair['key']);
+					$result['key_value'][$i] = $pair['key'];
+					$result['value_handle'][$i] = Lang::createHandle($pair['value']);
+					$result['value_value'][$i] = $pair['value'];
 				}
 			}
 
@@ -328,10 +330,10 @@
 		public function getExampleFormMarkup(){
 			$label = Widget::Label($this->get('label'));
 			$label->appendChild(
-				Widget::Input('fields['.$this->get('element_name').'][key][]')
+				Widget::Input('fields['.$this->get('element_name').'][][key]')
 			);
 			$label->appendChild(
-				Widget::Input('fields['.$this->get('element_name').'][value][]')
+				Widget::Input('fields['.$this->get('element_name').'][][value]')
 			);
 
 			return $label;
