@@ -245,7 +245,7 @@
 
 		public function checkPostFieldData($data, &$message, $entry_id = null) {
 			// Check required
-			if($this->get('required') == 'yes' && (!isset($data['key']) || empty($data['value'][0]))) {
+			if($this->get('required') == 'yes' && (!isset($data[0]['key']) || empty($data[0]['value']))) {
 				$message = __(
 					"'%s' is a required field.", array(
 						$this->get('label')
@@ -256,7 +256,7 @@
 			}
 
 			// Return if it's allowed to be empty (and is empty)
-			if(empty($data['value'][0])) return self::__OK__;
+			if(empty($data[0]['value'])) return self::__OK__;
 
 			// Process Validation Rules
 			if (!$this->applyValidationRules($data)) {
