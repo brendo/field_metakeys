@@ -211,7 +211,7 @@
 
 				if(is_array($defaults) && !empty($defaults)) foreach($defaults as $i => $key) {
 					$duplicator->appendChild(
-						$this->buildPair($key, $_POST{'fields'}[$field_handle][$i]['value'])
+						$this->buildPair($key, $_POST['fields'][$field_handle][$i]['value'])
 					);
 				}
 			}
