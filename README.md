@@ -3,7 +3,7 @@
 The Meta Keys field allows you to add arbitrary pieces of information to entries identified by a user generated key. You can set default keys, and choose different output types by key or named key. It attempts to provide some handy filtering hooks for your datasources as well.
 
 - Version: 1.0
-- Date: 27th March 2012
+- Date: 29th May 2012
 - Requirements: Symphony 2.3 or newer, <http://github.com/symphonycms/symphony-2/>
 - Author: Brendan Abbott, brendan@bloodbone.ws
 - GitHub Repository: <http://github.com/brendo/field_metakeys>
