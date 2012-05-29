@@ -332,10 +332,10 @@
 		public function getExampleFormMarkup(){
 			$label = Widget::Label($this->get('label'));
 			$label->appendChild(
-				Widget::Input('fields['.$this->get('element_name').'][][key]')
+				Widget::Input('fields['.$this->get('element_name').'][0][key]')
 			);
 			$label->appendChild(
-				Widget::Input('fields['.$this->get('element_name').'][][value]')
+				Widget::Input('fields['.$this->get('element_name').'][0][value]')
 			);
 
 			return $label;
