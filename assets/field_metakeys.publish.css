@@ -5,3 +5,7 @@ div.field-metakeys label {
 div.field-metakeys div.content label + label {
 	margin: 10px 0 0;
 }
+
+div.field-metakeys li{
+	padding-bottom: 12px;
+}
