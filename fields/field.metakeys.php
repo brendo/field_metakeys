@@ -2,10 +2,13 @@
 
 	if(!defined('__IN_SYMPHONY__')) die('<h2>Symphony Error</h2><p>You cannot directly access this file</p>');
 
+	/**
+	 * @package field_metakeys
+	 */
 	Class fieldMetaKeys extends Field {
 
-		public function __construct(&$parent) {
-			parent::__construct($parent);
+		public function __construct() {
+			parent::__construct();
 			$this->_name = __('Meta Keys');
 			$this->_required = true;
 
@@ -30,7 +33,7 @@
 							`value_value` TEXT NULL,
 							PRIMARY KEY (`id`),
 							KEY `entry_id` (`entry_id`)
-						) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+						) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 					", $this->get('id')
 				));
 
@@ -63,25 +66,38 @@
 			return ($rule ? General::validateString($data['value'], $rule) : true);
 		}
 
-		public function buildPair(XMLElement &$dl, $key = null, $value = null, $i = '') {
+		public function buildPair($key = null, $value = null, $i = '-1') {
 			$element_name = $this->get('element_name');
 
-			$dt = new XMLElement('dt', __('Key'));
-			$dt->appendChild(
+			$li = new XMLElement('li');
+			$li->setAttribute('class', !is_null($key) ? 'instance expanded' : 'template');
+
+			// Header
+			$header = new XMLElement('header');
+			$header->setAttribute('data-name', 'pair');
+			$label = !is_null($key) ? $key : __('New Pair');
+			$header->appendChild(new XMLElement('h4', '<strong>' . $label . '</strong>'));
+			$li->appendChild($header);
+
+			// Key
+			$label = Widget::Label();
+			$label->appendChild(
 				Widget::Input(
-					"fields[$element_name][key][$i]", $key
+					"fields[$element_name][$i][key]", $key, 'text', array('placeholder' => __('Key'))
 				)
 			);
+			$li->appendChild($label);
 
-			$dd = new XMLElement('dd', __('Value'));
-			$dd->appendChild(
+			// Value
+			$label = Widget::Label();
+			$label->appendChild(
 				Widget::Input(
-					"fields[$element_name][value][$i]", $value
+					"fields[$element_name][$i][value]", $value, 'text', array('placeholder' => __('Value'))
 				)
 			);
+			$li->appendChild($label);
 
-			$dl->appendChild($dt);
-			$dl->appendChild($dd);
+			return $li;
 		}
 
 	/*-------------------------------------------------------------------------
@@ -94,17 +110,18 @@
 		 * @param XMLElement $wrapper - parent element wrapping the field
 		 * @param array $errors - array with field errors, $errors['name-of-field-element']
 		 */
-		public function displaySettingsPanel(&$wrapper, $errors = null) {
-			##	Initialize field settings based on class defaults (name, placement)
+		public function displaySettingsPanel(XMLElement &$wrapper, $errors = null) {
+			// Initialize field settings based on class defaults (name, placement)
 			parent::displaySettingsPanel($wrapper, $errors);
 
 			$order = $this->get('sortorder');
 
 			$group = new XMLElement('div');
-			$group->setAttribute('class', 'group');
+			$group->setAttribute('class', 'two columns');
 
-			##	Default Keys
+			// Default Keys
 			$label = Widget::Label(__('Default Keys'));
+			$label->setAttribute('class', 'column');
 			$label->appendChild(
 				new XMLElement('i', __('Optional'))
 			);
@@ -114,27 +131,29 @@
 
 			$group->appendChild($label);
 
-			##	Validator
+			// Validator
 			$div = new XMLElement('div');
+			$div->setAttribute('class', 'column');
 			$this->buildValidationSelect(
 				$div, $this->get('validator'), "fields[{$order}][validator]"
 			);
+			// Remove 'column' from `buildValidationSelect`
+			$div->getChild(0)->setAttribute('class', '');
 
 			$group->appendChild($div);
-
 			$wrapper->appendChild($group);
 
-            ##  Automatic delete
-            $label = Widget::Label();
-            $input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
+			// Automatic delete
+			$label = Widget::Label();
+			$input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
 
-            if ($this->get('delete_empty_keys') == '1') $input->setAttribute('checked', 'checked');
+			if ($this->get('delete_empty_keys') == '1') $input->setAttribute('checked', 'checked');
 
-            $label->setValue(__('%s Automaticly delete empty keys', array($input->generate())));
+			$label->setValue(__('%s Automatically delete empty keys', array($input->generate())));
 
-            $wrapper->appendChild($label);
+			$wrapper->appendChild($label);
 
-			##	Defaults
+			// Defaults
 			$this->appendRequiredCheckbox($wrapper);
 			$this->appendShowColumnCheckbox($wrapper);
 		}
@@ -154,7 +173,7 @@
 				'field_id' => $id,
 				'validator' => $this->get('validator'),
 				'default_keys' => $this->get('default_keys'),
-                'delete_empty_keys' => $this->get('delete_empty_keys') == 'yes' ? '1' : '0'
+				'delete_empty_keys' => $this->get('delete_empty_keys') == 'yes' ? '1' : '0'
 			);
 
 			return Symphony::Database()->insert($fields, "tbl_fields_{$handle}", true);
@@ -164,31 +183,44 @@
 		Input:
 	-------------------------------------------------------------------------*/
 
-		public function displayPublishPanel(XMLElement &$wrapper, $data = null, $error = null, $prefix = null, $postfix = null, $entry_id = null) {
+		public function displayPublishPanel(XMLElement &$wrapper, $data = null, $flagWithError = null, $fieldnamePrefix = null, $fieldnamePostfix = null, $entry_id = null) {
 			extension_field_metakeys::appendAssets();
 
-			$dl = new XMLElement('dl');
-
-			#	Label
+			// Label
 			$label = Widget::Label($this->get('label'));
 			if ($this->get('required') == 'no') {
 				$label->appendChild(new XMLElement('i', __('Optional')));
 			}
 
-			#	Loop through the default keys if this is a new entry.
+			// Setup Duplicator
+			$duplicator = new XMLElement('ol');
+			$duplicator->setAttribute('class', 'filters-duplicator');
+			$duplicator->setAttribute('data-add', __('Add pair'));
+			$duplicator->setAttribute('data-remove', __('Remove pair'));
+
+			// Add a blank template
+			$duplicator->appendChild(
+				$this->buildPair()
+			);
+
+			// Loop through the default keys if this is a new entry.
 			if(is_null($entry_id) && !is_null($this->get('default_keys'))) {
 				$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
 
-				if(is_array($defaults) && !empty($defaults)) foreach($defaults as $key) {
-					$this->buildPair($dl, $key);
+				$field_handle = $this->get('element_name');
+
+				if(is_array($defaults) && !empty($defaults)) foreach($defaults as $i => $key) {
+					$duplicator->appendChild(
+						$this->buildPair($key, $_POST['fields'][$field_handle][$i]['value'])
+					);
 				}
 			}
 
-			#	If there is actually $data, show that
+			// If there is actually $data, show that
 			else if(!is_null($data)) {
 
-				#	If there's only one 'pair', we'll need to make them an array
-				#	so the logic remains consistant
+				// If there's only one 'pair', we'll need to make them an array
+				// so the logic remains consistant
 				if(!is_array($data['key_value'])) {
 					$data = array(
 						'key_value' => array($data['key_value']),
@@ -199,26 +231,23 @@
 				}
 
 				for($i = 0, $ii = count($data['key_value']); $i < $ii; $i++) {
-					$this->buildPair($dl, $data['key_value'][$i], $data['value_value'][$i], $i);
+					$duplicator->appendChild(
+						$this->buildPair($data['key_value'][$i], $data['value_value'][$i], $i)
+					);
 				}
 			}
 
-			#	Nothing, just prepend the template
-			else {
-				$this->buildPair($dl);
-			}
-
 			$wrapper->appendChild($label);
-			$wrapper->appendChild($dl);
+			$wrapper->appendChild($duplicator);
 
-			if ($error != null) {
-				$wrapper = Widget::wrapFormElementWithError($wrapper, $error);
+			if (!is_null($flagWithError)) {
+				$wrapper = Widget::Error($wrapper, $flagWithError);
 			}
 		}
 
-		public function checkPostFieldData($data, &$message = null, $entry_id = null) {
-			##	Check required
-			if($this->get('required') == 'yes' && (!isset($data['key']) || empty($data['value'][0]))) {
+		public function checkPostFieldData($data, &$message, $entry_id = null) {
+			// Check required
+			if($this->get('required') == 'yes' && (!isset($data[0]['key']) || empty($data[0]['value']))) {
 				$message = __(
 					"'%s' is a required field.", array(
 						$this->get('label')
@@ -228,10 +257,10 @@
 				return self::__MISSING_FIELDS__;
 			}
 
-			##	Return if it's allowed to be empty (and is empty)
-			if(empty($data['value'][0])) return self::__OK__;
+			// Return if it's allowed to be empty (and is empty)
+			if(empty($data[0]['value'])) return self::__OK__;
 
-			##	Process Validation Rules
+			// Process Validation Rules
 			if (!$this->applyValidationRules($data)) {
 				$message = __(
 					"'%s' contains invalid data. Please check the contents.", array(
@@ -245,25 +274,57 @@
 			return self::__OK__;
 		}
 
-		public function processRawFieldData($data, &$status, $simulate = false, $entry_id = null) {
+		/**
+		 * This function takes a string after XPath has resolved in the XMLImporter
+		 * and it's job is to transform it into what the field expects as `$data`
+		 * in the `processRawFieldData` function.
+		 *
+		 * @since 0.9.5
+		 */
+		public function prepareImportValue($data, $entry_id = null) {
+			$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
+			$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
+			$results = array();
+
+			foreach($data as $key => $value) {
+				// We have keys
+				if(isset($defaults[$key])) {
+					$results['key'][$key] = $defaults[$key];
+				}
+				// Fake keys, while $key is zero based, a user doesn't
+				// understand that, hence the + 1.
+				else {
+					$results['key'][$key] = 'Key ' . $key + 1;
+				}
+
+				$results['value'][$key] = $value;
+			}
+
+			if(empty($results)) return null;
+
+			return $results;
+		}
+
+		public function processRawFieldData($data, &$status, &$message=null, $simulate=false, $entry_id=null) {
 			$status = self::__OK__;
 
 			$result = array();
-            $delete_empty_keys = $this->get('delete_empty_keys') == 1;
+			$delete_empty_keys = $this->get('delete_empty_keys') == 1;
 
-			for($i = 0, $ii = count($data['key']); $i < $ii; $i++) {
-    			##	If there's no values, don't save the keys:
-                if(!empty($data['key'][$i]) && (!empty($data['value'][$i]) || $delete_empty_keys == false))
-                {
-                    $result['key_handle'][$i] = Lang::createHandle($data['key'][$i]);
-                    $result['key_value'][$i] = $data['key'][$i];
-                    $result['value_handle'][$i] = Lang::createHandle($data['value'][$i]);
-                    $result['value_value'][$i] = $data['value'][$i];
-                }
+			if(is_array($data)) foreach($data as $i => $pair) {
+				// Key is not empty AND
+				// Value is not empty OR we don't want to delete empty pairs
+				// Then skip adding that pair in the result
+				if(!empty($pair['key']) && (!empty($pair['value']) || $delete_empty_keys == false)) {
+					$result['key_handle'][$i] = Lang::createHandle($pair['key']);
+					$result['key_value'][$i] = $pair['key'];
+					$result['value_handle'][$i] = Lang::createHandle($pair['value']);
+					$result['value_value'][$i] = $pair['value'];
+				}
 			}
 
-            ##	If there's no values, return null:
-            if(empty($result)) return null;
+			// If there's no values, return null:
+			if(empty($result)) return null;
 
 			return $result;
 		}
@@ -271,10 +332,10 @@
 		public function getExampleFormMarkup(){
 			$label = Widget::Label($this->get('label'));
 			$label->appendChild(
-				Widget::Input('fields['.$this->get('element_name').'][key][]')
+				Widget::Input('fields['.$this->get('element_name').'][0][key]')
 			);
 			$label->appendChild(
-				Widget::Input('fields['.$this->get('element_name').'][value][]')
+				Widget::Input('fields['.$this->get('element_name').'][0][value]')
 			);
 
 			return $label;
@@ -332,16 +393,14 @@
 			$wrapper->appendChild($field);
 		}
 
-		/*
-		**	At this stage we will just return the Key's
-		*/
-		public function getParameterPoolValue($data) {
-			return is_array($data['key_handle'])
-						? implode(', ', $data['key_handle'])
-						: $data['key_handle'];
+		/**
+		 * At this stage we will just return the Key's
+		 */
+		public function getParameterPoolValue(array $data, $entry_id=NULL) {
+			return $data['key_handle'];
 		}
 
-		public function prepareTableValue($data, XMLElement $link = null) {
+		public function prepareTableValue($data, XMLElement $link = null, $entry_id = null) {
 			if(is_null($data)) return __('None');
 
 			$values = is_array($data['value_value'])
@@ -355,22 +414,22 @@
 		Filtering:
 	-------------------------------------------------------------------------*/
 
-		/*
-		**	Accepted Filter options at this stage:
-		**
-		**	colour			Key
-		**	value: red		Value
-		**	key-equals: 	colour=red	Key Equals
-		*/
-		public function buildDSRetrivalSQL($data, &$joins, &$where, $andOperation = false) {
+		/**
+		 * Accepted Filter options at this stage:
+		 *
+		 * colour			Key
+		 * value: red		Value
+		 * key-equals:		colour=red	Key Equals
+		 */
+		public function buildDSRetrievalSQL($data, &$joins, &$where, $andOperation = false) {
 
 			$field_id = $this->get('id');
 
-			#	Value filter
+			// Value filter
 			if (preg_match('/^value:.*/', $data[0])) {
 				$this->_key++;
 
-				#	Split all of the possible combos
+				// Split all of the possible combos
 				$data[0] = trim(str_replace('value:', '', $this->cleanValue($data[0])));
 
 				$joins .= "
@@ -382,7 +441,7 @@
 
 				$value = implode("','", $data);
 
-				#	Build the wheres
+				// Build the wheres
 				$where .= "
 					AND (
 						t{$field_id}_{$this->_key}.value_value IN ('{$value}')
@@ -392,11 +451,11 @@
 				";
 			}
 
-			#	Key equals filter
+			// Key equals filter
 			else if (preg_match('/^key-equals:.*/', $data[0])) {
 				$this->_key++;
 
-				#	Split all of the possible combos
+				// Split all of the possible combos
 				$data[0] = trim(str_replace('key-equals:', '', $this->cleanValue($data[0])));
 
 				$joins .= "
@@ -406,7 +465,7 @@
 						(e.id = t{$field_id}_{$this->_key}.entry_id)
 				";
 
-				#	Get all the keys/values
+				// Get all the keys/values
 				$keys = array();
 				$values = array();
 
@@ -418,7 +477,7 @@
 				$key = implode("','", $keys);
 				$value = implode("','", $values);
 
-				#	Build the wheres
+				// Build the wheres
 				$where .= "
 					AND (
 						t{$field_id}_{$this->_key}.key_value IN ('{$key}')
@@ -443,7 +502,7 @@
 							ON (e.id = t{$field_id}_{$this->_key}.entry_id)
 					";
 					$where .= "
-						AND	(
+						AND (
 							t{$field_id}_{$this->_key}.key_value = '{$value}'
 							OR
 							t{$field_id}_{$this->_key}.key_handle = '{$value}'
@@ -453,7 +512,7 @@
 
 			}
 
-			#	Default Key match
+			// Default Key match
 			else {
 				if (!is_array($data)) $data = array($data);
 
@@ -470,7 +529,7 @@
 						(e.id = t{$field_id}_{$this->_key}.entry_id)
 				";
 				$where .= "
-					AND	(
+					AND (
 						t{$field_id}_{$this->_key}.key_value IN ('{$data}')
 						OR
 						t{$field_id}_{$this->_key}.key_handle IN ('{$data}')

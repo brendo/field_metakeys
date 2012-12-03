@@ -1,99 +1,11 @@
-/*
-	Pair Styling
-*/
-	div.field-metakeys dl {
-		background: #E6E6E5;
-		color: #777;
-		padding: 10px 15px;
-		border-bottom: 1px solid #C2C2C2;
-		border-top: 1px solid #C2C2C2;
-	}
+div.field-metakeys label {
+	margin-bottom: 2px;
+}
 
-	div.field-metakeys dt{
-		margin: 10px 0;
-		position: relative;
-	}
+div.field-metakeys div.content label + label {
+	margin: 10px 0 0;
+}
 
-	div.field-metakeys dd {
-		padding-bottom: 10px;
-		border-bottom: 1px solid #C2C2C2
-	}
-	div.field-metakeys dd:last-child {
-		border-bottom: none;
-	}
-
-	div.field-metakeys dl dt input,
-	div.field-metakeys dl dd input {
-		display: block;
-		margin-right: 26px;
-		width: 80%;
-		float: right;
-	}
-
-	div.field-metakeys input:focus {
-		background: #FFFFAA;
-		background-color: rgba(255, 255, 170, 0.5);
-	}
-
-/*
-	Control Styling
-*/
-	div.field-metakeys div.control-bar {
-		background: #F5F5F3;
-		border: 1px solid #E4E4DE;
-		padding: 4px 0;
-		display: block;
-		height: 1.8em;
-		position: relative;
-		width: 99.5%;
-		margin-bottom: 1.75em;
-	}
-
-	div.field-metakeys .control {
-		position: absolute;
-		right: 0;
-		border-radius: 1em;
-		-moz-border-radius: 1em;
-		-webkit-border-radius: 1em;
-		border: 1px solid #E4E4E2;
-		background: #EBEBE9;
-		margin-right: 12px;
-		display: inline-block;
-		text-decoration: none;
-		color: #777;
-		padding: 0 .4em;
-	}
-
-	div.field-metakeys .control:hover {
-		background: #81B934;
-		border-color: #81B934;
-		color: #FFF;
-		cursor: pointer;
-	}
-
-	div.field-metakeys dt a.remove {
-		color: #FFF;
-		background: #A59E9E;
-		border-color: #A59E9E;
-		font-size: 10px;
-		margin-right: 0px;
-	}
-
-	div.field-metakeys dt a.remove:hover {
-		background: #FF0000;
-		border-color: #FFF;
-	}
-
-/*
-	Symphony Form Overrides
-*/
-
-	div.field-metakeys #error p {
-		clear: both;
-		margin: 0;
-		padding: 1em 0 0;
-	}
-
-	div.field-metakeys label {
-		margin-bottom: .25em;
-	}
+div.field-metakeys li{
+	padding-bottom: 12px;
+}
