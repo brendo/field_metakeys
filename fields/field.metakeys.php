@@ -83,7 +83,7 @@
 			$label = Widget::Label();
 			$label->appendChild(
 				Widget::Input(
-					"fields[$element_name][$i][key]", $key, 'text', array('placeholder' => __('Key'))
+					"fields[$element_name][$i][key]", General::sanitize($key), 'text', array('placeholder' => __('Key'))
 				)
 			);
 			$li->appendChild($label);
@@ -92,7 +92,7 @@
 			$label = Widget::Label();
 			$label->appendChild(
 				Widget::Input(
-					"fields[$element_name][$i][value]", $value, 'text', array('placeholder' => __('Value'))
+					"fields[$element_name][$i][value]", General::sanitize($value), 'text', array('placeholder' => __('Value'))
 				)
 			);
 			$li->appendChild($label);
