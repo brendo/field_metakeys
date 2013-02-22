@@ -187,14 +187,14 @@
 			extension_field_metakeys::appendAssets();
 
 			// Label
-			$label = Widget::Label($this->get('label'));
+			$label = Widget::Label($this->get('label').' '.__('<em>(Double click on the name to collapse/expand all)</em>'));
 			if ($this->get('required') == 'no') {
 				$label->appendChild(new XMLElement('i', __('Optional')));
 			}
 
 			// Setup Duplicator
 			$duplicator = new XMLElement('ol');
-			$duplicator->setAttribute('class', 'filters-duplicator');
+			$duplicator->setAttribute('class', 'meta-keys-duplicator');
 			$duplicator->setAttribute('data-add', __('Add pair'));
 			$duplicator->setAttribute('data-remove', __('Remove pair'));
 
