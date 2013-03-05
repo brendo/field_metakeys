@@ -125,9 +125,13 @@
 			$label->appendChild(
 				new XMLElement('i', __('Optional'))
 			);
-			$label->appendChild(Widget::Input(
-				"fields[{$order}][default_keys]", $this->get('default_keys')
+			$label->appendChild(Widget::Textarea(
+				"fields[{$order}][default_keys]", 5, 50, $this->get('default_keys')
 			));
+			$label->appendChild(
+				new XMLElement('p', __('You can optionally asign values by using a double colon: "<code>key::value</code>".<br />
+					If you want to use a comma in your key or value, you need to escape it: "<code>Red\\, Green or Blue</code>".'), array('class' => 'help'))
+			);
 
 			$group->appendChild($label);
 
@@ -205,11 +209,21 @@
 
 			// Loop through the default keys if this is a new entry.
 			if(is_null($entry_id) && !is_null($this->get('default_keys'))) {
-				$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
+				// escape comma:
+				$default_keys = str_replace('\\,', '[COMMA]', $this->get('default_keys'));
+				$defaults = preg_split('/,\s*/', $default_keys, -1, PREG_SPLIT_NO_EMPTY);
 
 				$field_handle = $this->get('element_name');
 
 				if(is_array($defaults) && !empty($defaults)) foreach($defaults as $i => $key) {
+					// Restore comma:
+					$key = str_replace('[COMMA]', ',', $key);
+					// Check if there is a value set:
+					$a = explode('::', $key);
+					if(count($a) == 2) {
+						$_POST['fields'][$field_handle][$i]['value'] = $a[1];
+						$key = $a[0];
+					}
 					$duplicator->appendChild(
 						$this->buildPair($key, $_POST['fields'][$field_handle][$i]['value'])
 					);
