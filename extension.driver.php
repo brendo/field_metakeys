@@ -70,8 +70,8 @@
 				&& Administration::instance() instanceof Administration
 				&& Administration::instance()->Page instanceof HTMLPage
 			) {
-				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/field_metakeys/assets/field_metakeys.publish.css', 'screen', 10000, false);
-				Administration::instance()->Page->addScriptToHead(URL . '/extensions/field_metakeys/assets/field_metakeys.publish.js', 10000, false);
+				Administration::instance()->Page->addStylesheetToHead(URL . '/extensions/field_metakeys/assets/field_metakeys.publish.css', 'screen', 100, false);
+				Administration::instance()->Page->addScriptToHead(URL . '/extensions/field_metakeys/assets/field_metakeys.publish.js', 100, false);
 			}
 		}
 	}

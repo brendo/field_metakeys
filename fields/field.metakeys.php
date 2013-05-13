@@ -66,15 +66,16 @@
 			return ($rule ? General::validateString($data['value'], $rule) : true);
 		}
 
-		public function buildPair($key = null, $value = null, $i = '-1') {
+		public function buildPair($key = null, $value = null, $i = -1) {
 			$element_name = $this->get('element_name');
 
 			$li = new XMLElement('li');
-			$li->setAttribute('class', !is_null($key) ? 'instance expanded' : 'template');
+			if($i == -1) {
+				$li->setAttribute('class', 'template');
+			}
 
 			// Header
 			$header = new XMLElement('header');
-			$header->setAttribute('data-name', 'pair');
 			$label = !is_null($key) ? $key : __('New Pair');
 			$header->appendChild(new XMLElement('h4', '<strong>' . $label . '</strong>'));
 			$li->appendChild($header);
@@ -191,19 +192,19 @@
 			extension_field_metakeys::appendAssets();
 
 			// Label
-			$label = Widget::Label($this->get('label').' '.__('<em>(Double click on the name to collapse/expand all)</em>'));
+			$label = Widget::Label($this->get('label'));
 			if ($this->get('required') == 'no') {
 				$label->appendChild(new XMLElement('i', __('Optional')));
 			}
 
 			// Setup Duplicator
-			$duplicator = new XMLElement('ol');
-			$duplicator->setAttribute('class', 'meta-keys-duplicator');
-			$duplicator->setAttribute('data-add', __('Add pair'));
-			$duplicator->setAttribute('data-remove', __('Remove pair'));
+			$duplicator = new XMLElement('div', null, array('class' => 'frame metakeys-duplicator'));
+			$pairs = new XMLElement('ol');
+			$pairs->setAttribute('data-add', __('Add Pair'));
+			$pairs->setAttribute('data-remove', __('Remove Pair'));
 
 			// Add a blank template
-			$duplicator->appendChild(
+			$pairs->appendChild(
 				$this->buildPair()
 			);
 
@@ -224,14 +225,14 @@
 						$_POST['fields'][$field_handle][$i]['value'] = $a[1];
 						$key = $a[0];
 					}
-					$duplicator->appendChild(
-						$this->buildPair($key, $_POST['fields'][$field_handle][$i]['value'])
+					$pairs->appendChild(
+						$this->buildPair($key, $_POST['fields'][$field_handle][$i]['value'], $i)
 					);
 				}
 			}
 
 			// If there is actually $data, show that
-			else if(!is_null($data)) {
+			else if(!empty($data)) {
 
 				// If there's only one 'pair', we'll need to make them an array
 				// so the logic remains consistant
@@ -245,14 +246,15 @@
 				}
 
 				for($i = 0, $ii = count($data['key_value']); $i < $ii; $i++) {
-					$duplicator->appendChild(
+					$pairs->appendChild(
 						$this->buildPair($data['key_value'][$i], $data['value_value'][$i], $i)
 					);
 				}
 			}
 
+			$duplicator->appendChild($pairs);
+			$label->appendChild($duplicator);
 			$wrapper->appendChild($label);
-			$wrapper->appendChild($duplicator);
 
 			if (!is_null($flagWithError)) {
 				$wrapper = Widget::Error($wrapper, $flagWithError);
