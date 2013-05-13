@@ -4,9 +4,11 @@
 		$('.metakeys-duplicator').symphonyDuplicator({
 			orderable: true,
 			collapsible: true
-  		}).find('input').on('click.metakeys', function(event) {
-  			event.preventDefault();
-  			event.stopPropagation();
+  		}).on('constructstop.duplicator', function(event) {
+  			$(event.target).find('input').on('focus.metakeys click.metakeys', function(event) {
+	  			event.preventDefault();
+	  			event.stopPropagation();
+	  		});
   		});
 	});
 
