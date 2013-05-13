@@ -324,7 +324,7 @@
 					$temp = $data;
 				}
 
-				return $this->processRawFieldData($temp, $status, $message, true, $entry_id);
+				return $temp;
 			}
 			else if($mode === $modes->getString) {
 				$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
@@ -347,7 +347,7 @@
 					$temp['value'][$key] = $value;
 				}
 
-				return $this->processRawFieldData($temp, $status, $message, true, $entry_id);
+				return $temp;
 			}
 
 			return null;
