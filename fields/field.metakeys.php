@@ -290,6 +290,13 @@
 			return self::__OK__;
 		}
 
+		public function getImportModes() {
+			return array(
+				'getPostdata' =>	ImportableField::ARRAY_VALUE,
+				'getString' =>		ImportableField::STRING_VALUE
+			);
+		}
+
 		/**
 		 * This function takes a string after XPath has resolved in the XMLImporter
 		 * and it's job is to transform it into what the field expects as `$data`
@@ -297,28 +304,53 @@
 		 *
 		 * @since 0.9.5
 		 */
-		public function prepareImportValue($data, $entry_id = null) {
-			$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
-			$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
-			$results = array();
+		public function prepareImportValue($data, $mode, $entry_id = null) {
+			$message = $status = null;
+			$modes = (object)$this->getImportModes();
+			$temp = array();
 
-			foreach($data as $key => $value) {
-				// We have keys
-				if(isset($defaults[$key])) {
-					$results['key'][$key] = $defaults[$key];
+			if($mode === $modes->getPostdata) {
+				if(!is_array($data)) $data = (array)$data;
+
+				if(!isset($data[0]['key'])) {
+					foreach($data as $key => $value) {
+						$temp[] = array(
+							'key' => $key,
+							'value' => $value
+						);
+					}
 				}
-				// Fake keys, while $key is zero based, a user doesn't
-				// understand that, hence the + 1.
 				else {
-					$results['key'][$key] = 'Key ' . $key + 1;
+					$temp = $data;
 				}
 
-				$results['value'][$key] = $value;
+				return $this->processRawFieldData($temp, $status, $message, true, $entry_id);
+			}
+			else if($mode === $modes->getString) {
+				$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
+				$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
+				$results = array();
+
+				foreach($data as $key => $value) {
+
+					// We have keys
+					if(isset($defaults[$key])) {
+						$temp['key'][$key] = $defaults[$key];
+					}
+
+					// Fake keys, while $key is zero based, a user doesn't
+					// understand that, hence the + 1.
+					else {
+						$temp['key'][$key] = 'Key ' . $key + 1;
+					}
+
+					$temp['value'][$key] = $value;
+				}
+
+				return $this->processRawFieldData($temp, $status, $message, true, $entry_id);
 			}
 
-			if(empty($results)) return null;
-
-			return $results;
+			return null;
 		}
 
 		public function processRawFieldData($data, &$status, &$message=null, $simulate=false, $entry_id=null) {
@@ -328,6 +360,7 @@
 			$delete_empty_keys = $this->get('delete_empty_keys') == 1;
 
 			if(is_array($data)) foreach($data as $i => $pair) {
+
 				// Key is not empty AND
 				// Value is not empty OR we don't want to delete empty pairs
 				// Then skip adding that pair in the result
