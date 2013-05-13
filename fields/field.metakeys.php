@@ -66,15 +66,16 @@
 			return ($rule ? General::validateString($data['value'], $rule) : true);
 		}
 
-		public function buildPair($key = null, $value = null, $i = '-1') {
+		public function buildPair($key = null, $value = null, $i = -1) {
 			$element_name = $this->get('element_name');
 
 			$li = new XMLElement('li');
-			$li->setAttribute('class', !is_null($key) ? 'instance expanded' : 'template');
+			if($i == -1) {
+				$li->setAttribute('class', 'template');
+			}
 
 			// Header
 			$header = new XMLElement('header');
-			$header->setAttribute('data-name', 'pair');
 			$label = !is_null($key) ? $key : __('New Pair');
 			$header->appendChild(new XMLElement('h4', '<strong>' . $label . '</strong>'));
 			$li->appendChild($header);
@@ -191,19 +192,19 @@
 			extension_field_metakeys::appendAssets();
 
 			// Label
-			$label = Widget::Label($this->get('label').' '.__('<em>(Double click on the name to collapse/expand all)</em>'));
+			$label = Widget::Label($this->get('label'));
 			if ($this->get('required') == 'no') {
 				$label->appendChild(new XMLElement('i', __('Optional')));
 			}
 
 			// Setup Duplicator
-			$duplicator = new XMLElement('ol');
-			$duplicator->setAttribute('class', 'meta-keys-duplicator');
-			$duplicator->setAttribute('data-add', __('Add pair'));
-			$duplicator->setAttribute('data-remove', __('Remove pair'));
+			$duplicator = new XMLElement('div', null, array('class' => 'frame metakeys-duplicator'));
+			$pairs = new XMLElement('ol');
+			$pairs->setAttribute('data-add', __('Add Pair'));
+			$pairs->setAttribute('data-remove', __('Remove Pair'));
 
 			// Add a blank template
-			$duplicator->appendChild(
+			$pairs->appendChild(
 				$this->buildPair()
 			);
 
@@ -224,14 +225,14 @@
 						$_POST['fields'][$field_handle][$i]['value'] = $a[1];
 						$key = $a[0];
 					}
-					$duplicator->appendChild(
-						$this->buildPair($key, $_POST['fields'][$field_handle][$i]['value'])
+					$pairs->appendChild(
+						$this->buildPair($key, $_POST['fields'][$field_handle][$i]['value'], $i)
 					);
 				}
 			}
 
 			// If there is actually $data, show that
-			else if(!is_null($data)) {
+			else if(!empty($data)) {
 
 				// If there's only one 'pair', we'll need to make them an array
 				// so the logic remains consistant
@@ -245,14 +246,15 @@
 				}
 
 				for($i = 0, $ii = count($data['key_value']); $i < $ii; $i++) {
-					$duplicator->appendChild(
+					$pairs->appendChild(
 						$this->buildPair($data['key_value'][$i], $data['value_value'][$i], $i)
 					);
 				}
 			}
 
+			$duplicator->appendChild($pairs);
+			$label->appendChild($duplicator);
 			$wrapper->appendChild($label);
-			$wrapper->appendChild($duplicator);
 
 			if (!is_null($flagWithError)) {
 				$wrapper = Widget::Error($wrapper, $flagWithError);
@@ -288,6 +290,13 @@
 			return self::__OK__;
 		}
 
+		public function getImportModes() {
+			return array(
+				'getPostdata' =>	ImportableField::ARRAY_VALUE,
+				'getString' =>		ImportableField::STRING_VALUE
+			);
+		}
+
 		/**
 		 * This function takes a string after XPath has resolved in the XMLImporter
 		 * and it's job is to transform it into what the field expects as `$data`
@@ -295,28 +304,53 @@
 		 *
 		 * @since 0.9.5
 		 */
-		public function prepareImportValue($data, $entry_id = null) {
-			$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
-			$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
-			$results = array();
+		public function prepareImportValue($data, $mode, $entry_id = null) {
+			$message = $status = null;
+			$modes = (object)$this->getImportModes();
+			$temp = array();
 
-			foreach($data as $key => $value) {
-				// We have keys
-				if(isset($defaults[$key])) {
-					$results['key'][$key] = $defaults[$key];
+			if($mode === $modes->getPostdata) {
+				if(!is_array($data)) $data = (array)$data;
+
+				if(!isset($data[0]['key'])) {
+					foreach($data as $key => $value) {
+						$temp[] = array(
+							'key' => $key,
+							'value' => $value
+						);
+					}
 				}
-				// Fake keys, while $key is zero based, a user doesn't
-				// understand that, hence the + 1.
 				else {
-					$results['key'][$key] = 'Key ' . $key + 1;
+					$temp = $data;
 				}
 
-				$results['value'][$key] = $value;
+				return $temp;
+			}
+			else if($mode === $modes->getString) {
+				$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
+				$defaults = preg_split('/,\s*/', $this->get('default_keys'), -1, PREG_SPLIT_NO_EMPTY);
+				$results = array();
+
+				foreach($data as $key => $value) {
+
+					// We have keys
+					if(isset($defaults[$key])) {
+						$temp['key'][$key] = $defaults[$key];
+					}
+
+					// Fake keys, while $key is zero based, a user doesn't
+					// understand that, hence the + 1.
+					else {
+						$temp['key'][$key] = 'Key ' . $key + 1;
+					}
+
+					$temp['value'][$key] = $value;
+				}
+
+				return $temp;
 			}
 
-			if(empty($results)) return null;
-
-			return $results;
+			return null;
 		}
 
 		public function processRawFieldData($data, &$status, &$message=null, $simulate=false, $entry_id=null) {
@@ -326,6 +360,7 @@
 			$delete_empty_keys = $this->get('delete_empty_keys') == 1;
 
 			if(is_array($data)) foreach($data as $i => $pair) {
+
 				// Key is not empty AND
 				// Value is not empty OR we don't want to delete empty pairs
 				// Then skip adding that pair in the result
