@@ -1,16 +1,7 @@
+div.field-metakeys div.content {
+	padding-bottom: 7px;
+}
+
 div.field-metakeys label {
-	margin-bottom: 2px;
-}
-
-div.field-metakeys div.content label + label {
-	margin: 10px 0;
-}
-
-div.field-metakeys label em {
-	color: #a9a9a9;
-	font-style: normal;
-}
-
-div.field-metakeys li{
-	/* padding-bottom: 12px; */
+	margin: 0 0 5px;
 }
