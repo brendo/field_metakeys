@@ -126,11 +126,11 @@
 			$label->appendChild(
 				new XMLElement('i', __('Optional'))
 			);
-			$label->appendChild(Widget::Textarea(
-				"fields[{$order}][default_keys]", 5, 50, $this->get('default_keys')
+			$label->appendChild(Widget::Input(
+				"fields[{$order}][default_keys]", $this->get('default_keys')
 			));
 			$label->appendChild(
-				new XMLElement('p', __('You can optionally asign values by using a double colon: "<code>key::value</code>".<br />
+				new XMLElement('p', __('You can optionally assign values by using a double colon: "<code>key::value</code>".<br />
 					If you want to use a comma in your key or value, you need to escape it: "<code>Red\\, Green or Blue</code>".'), array('class' => 'help'))
 			);
 

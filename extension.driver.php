@@ -63,7 +63,7 @@
 		}
 
 	/*-------------------------------------------------------------------------
-		Utitilites:
+		Utilities:
 	-------------------------------------------------------------------------*/
 		public static function appendAssets() {
 			if(class_exists('Administration')
