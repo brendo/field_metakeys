@@ -2,33 +2,51 @@
 
 The Meta Keys field allows you to add arbitrary pieces of information to entries identified by a user generated key. You can set default keys, and choose different output types by key or named key. It attempts to provide some handy filtering hooks for your datasources as well.
 
-- Version: 1.0
-- Date: 29th May 2012
-- Requirements: Symphony 2.3 or newer, <http://github.com/symphonycms/symphony-2/>
-- Author: Brendan Abbott, brendan@bloodbone.ws
-- GitHub Repository: <http://github.com/brendo/field_metakeys>
-
-## INSTALLATION
+## Installation
 
 1. Upload the `/field_metakeys` folder to your Symphony `/extensions` folder.
 2. Enable it by selecting the "Field: Meta Keys", choose Enable from the with-selected menu, then click Apply.
 3. You can now add the "Meta Keys" field to your Sections.
 
-## OPTIONS
+## Options
 
 ### Section
 #### Default Keys
-You can set a number of default keys in the Section Editor, these will appear when you first create an entry. You don't have to use them, they can be removed with the [x].
+You can set a number of default keys in the Section Editor, these will appear when you first create an entry. If the default keys aren't filled with values,they will be removed with the duplicator upon saving. 
+
+If you want to assign a default value to a key, use the `::` syntax. eg. `Colour::Red`, which will fill the Key with 'Colour' and the value with 'Red'. 
+
+You can also prefill multiple keys with commas, ie. `Colour::Red, Size::Medium`. If you need to have a value that includes a comma, escape it, eg. `Colour::Red\\, Green`  
 
 #### Validator
 The usual Symphony validation applies to the Values of your Keys.
 
 #### Required Field
-This makes sure that you have at least one completed Pair, that is, the Key and Value is filled.
+This settings ensures that you at least one completed Pair, the Key and Value, is filled.
 
 ### Datasources
 #### Named Keys vs. Keys
 You can choose between the named keys output, or just a generic key output for your XML. A named key will use the name of the key as the node name, whereas generic will just list each pair under a 'key' node.
+
+Consider the example of Colour: Red:
+
+Normal mode:
+```
+  <field mode='normal'>
+    <key handle='colour' name='Colour'>
+      <value hande='red'>Red</value>
+    </key>
+  <field>
+```
+
+Named key mode:
+```
+  <field mode='named-keys'>
+    <colour handle='colour' name='Colour'>
+      <value handle='red'>Red</value>
+    </colour>
+  </field>
+```
 
 #### Filtering
 Best efforts have been made for these to support normal Symphony enumerators of `+`,`,` and `:`, but please report any unusual behaviour!
