@@ -12,11 +12,11 @@ The Meta Keys field allows you to add arbitrary pieces of information to entries
 
 ### Section
 #### Default Keys
-You can set a number of default keys in the Section Editor, these will appear when you first create an entry. If the default keys aren't filled with values,they will be removed with the duplicator upon saving. 
+You can set a number of default keys in the Section Editor, these will appear when you first create an entry. If the default keys aren't filled with values,they will be removed with the duplicator upon saving.
 
-If you want to assign a default value to a key, use the `::` syntax. eg. `Colour::Red`, which will fill the Key with 'Colour' and the value with 'Red'. 
+If you want to assign a default value to a key, use the `::` syntax. eg. `Colour::Red`, which will fill the Key with 'Colour' and the value with 'Red'.
 
-You can also prefill multiple keys with commas, ie. `Colour::Red, Size::Medium`. If you need to have a value that includes a comma, escape it, eg. `Colour::Red\\, Green`  
+You can also prefill multiple keys with commas, ie. `Colour::Red, Size::Medium`. If you need to have a value that includes a comma, escape it, eg. `Colour::Red\\, Green`
 
 #### Validator
 The usual Symphony validation applies to the Values of your Keys.
@@ -59,6 +59,15 @@ This will return all entries where one Pair exists that has the value of red.
 
 ##### `key-equals: colour=red`
 This will return all entries where the `Colour` key equals `red`. You can chain this as well with `key-equals: colour=red, shape=square` that will get all entries where the `Colour` is `red` and the `Shape` is `square`.
+
+##### `price: 1..5`
+Returns all entries where the value of the key `price` is between 1 and 5 (inclusive)
+
+##### `price: ...5`
+Returns all entries where the value of the key `price` is less than 5 (inclusive)
+
+##### `price: 5...`
+Returns all entries where the value of the key `price` is more than 5 (inclusive).
 
 ## XMLImporter support
 
