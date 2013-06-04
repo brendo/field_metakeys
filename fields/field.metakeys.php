@@ -541,6 +541,66 @@
 				";
 			}
 
+			// Range operation (basic numeric filtering) on value
+			elseif (preg_match('/^([a-z-]+):\s?(\d+)\.{2}(\d+)/', $data[0], $matches)) {
+				$joins .= "
+					LEFT JOIN
+						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+					ON
+						(e.id = t{$field_id}_{$this->_key}.entry_id)
+				";
+				$where .= "
+					AND (
+						t{$field_id}_{$this->_key}.key_value IN ('{$matches[1]}')
+						OR
+						t{$field_id}_{$this->_key}.key_handle IN ('{$matches[1]}')
+					)
+					AND (
+						t{$field_id}_{$this->_key}.value_value BETWEEN {$matches[2]} AND {$matches[3]}
+					)
+				";
+			}
+
+			// Less than numeric on value
+			elseif (preg_match('/^([a-z-]+):\s?\.{3}(\d+)/', $data[0], $matches)) {
+				$joins .= "
+					LEFT JOIN
+						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+					ON
+						(e.id = t{$field_id}_{$this->_key}.entry_id)
+				";
+				$where .= "
+					AND (
+						t{$field_id}_{$this->_key}.key_value IN ('{$matches[1]}')
+						OR
+						t{$field_id}_{$this->_key}.key_handle IN ('{$matches[1]}')
+					)
+					AND (
+						t{$field_id}_{$this->_key}.value_value <= {$matches[2]}
+					)
+				";
+			}
+
+			// More than numeric on value
+			elseif (preg_match('/^([a-z-]+):\s?(\d+)\.{3}/', $data[0], $matches)) {
+				$joins .= "
+					LEFT JOIN
+						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+					ON
+						(e.id = t{$field_id}_{$this->_key}.entry_id)
+				";
+				$where .= "
+					AND (
+						t{$field_id}_{$this->_key}.key_value IN ('{$matches[1]}')
+						OR
+						t{$field_id}_{$this->_key}.key_handle IN ('{$matches[1]}')
+					)
+					AND (
+						t{$field_id}_{$this->_key}.value_value >= {$matches[2]}
+					)
+				";
+			}
+
 			elseif ($andOperation) {
 				foreach ($data as $value) {
 					$this->_key++;
