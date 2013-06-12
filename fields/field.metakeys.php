@@ -77,6 +77,7 @@
 			// Header
 			$header = new XMLElement('header');
 			$label = !is_null($key) ? $key : __('New Pair');
+			$header->setAttribute('data-name', 'pair');
 			$header->appendChild(new XMLElement('h4', '<strong>' . $label . '</strong>'));
 			$li->appendChild($header);
 
