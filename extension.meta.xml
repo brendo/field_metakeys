@@ -17,6 +17,10 @@
 		<item type="image" url="http://symphonyextensions.com/brendo/field_metakeys/media/field_metakeys.png">Meta Keys: The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</item>
 	</media>
 	<releases>
+		<release version="1.2" date='2013-06-12' min="2.3.1">
+			- Add filtering support for numeric data, see the README
+			- Fix potential JS error with the duplicator
+		</release>
 		<release version="1.1" date='2013-05-19' min="2.3.1">
 			- Duplicator updates (orderable and sortable), thanks @kanduvisla!
 			- Implement XMLImporter's updated `prepareImportValue` function, thanks @nilshoerrmann!
