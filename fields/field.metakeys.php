@@ -197,6 +197,7 @@
 			if ($this->get('required') == 'no') {
 				$label->appendChild(new XMLElement('i', __('Optional')));
 			}
+			$wrapper->appendChild($label);
 
 			// Setup Duplicator
 			$duplicator = new XMLElement('div', null, array('class' => 'frame metakeys-duplicator'));
@@ -254,8 +255,7 @@
 			}
 
 			$duplicator->appendChild($pairs);
-			$label->appendChild($duplicator);
-			$wrapper->appendChild($label);
+			$wrapper->appendChild($duplicator);
 
 			if (!is_null($flagWithError)) {
 				$wrapper = Widget::Error($wrapper, $flagWithError);
