@@ -7,7 +7,7 @@
 			'email' => 'info@alexbirukov.ru',
 			'website' => 'http://alexbirukov.ru'
 		),
-		'release-date' => '2013-01-20'
+		'release-date' => '2013-10-04'
 	);
 
 	/**
@@ -15,11 +15,23 @@
 	 */
 	$dictionary = array(
 
+		'%s Automatically delete empty keys' => 
+		'%s Автоматически удалять пустые ключи',
+
+		'\'%s\' is a required field.' => 
+		'\'%s\' сделать обязательным полем.',
+
 		'An error occurred while installing %s. %s' => 
 		'Возникла ошибка при установке %s. %s',
 
 		'An error occurred while uninstalling %s. %s' => 
 		'Возникла ошибка при удалении %s. %s',
+
+		'Default Keys' => 
+		'Ключи по умолчанию',
+
+		'Key' => 
+		'Ключ',
 
 		'Meta Keys' => 
 		'Мета ключи',
@@ -27,22 +39,12 @@
 		'New Pair' => 
 		'Новая пара',
 
-		'Key' => 
-		'Ключ',
+		// Missing
 
-		'Default Keys' => 
-		'Ключи по умолчанию',
-
-		'%s Automatically delete empty keys' => 
-		'%s Автоматически удалять пустые ключи',
-
-		'Add pair' => 
+		'Add Pair' => 
 		'Добавить пару',
 
-		'Remove pair' => 
+		'Remove Pair' => 
 		'Удалить пару',
-
-		'\'%s\' is a required field.' => 
-		'\'%s\' сделать обязательным полем.',
 
 	);
