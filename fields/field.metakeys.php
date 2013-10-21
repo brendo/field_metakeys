@@ -131,8 +131,7 @@
 				"fields[{$order}][default_keys]", $this->get('default_keys')
 			));
 			$label->appendChild(
-				new XMLElement('p', __('You can optionally assign values by using a double colon: "<code>key::value</code>".<br />
-					If you want to use a comma in your key or value, you need to escape it: "<code>Red\\, Green or Blue</code>".'), array('class' => 'help'))
+				new XMLElement('p', __('You can optionally assign values by using a double colon: %s.', array('<code>' . __('key::value') . '</code>')) . '<br />' . __('If you want to use a comma in your key or value, you need to escape it, e. g. %s.', array('<code>' . __('Red\\, Green or Blue') . '</code>')), array('class' => 'help'))
 			);
 
 			$group->appendChild($label);
