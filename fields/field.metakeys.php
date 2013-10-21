@@ -149,19 +149,21 @@
 			$group->appendChild($div);
 			$wrapper->appendChild($group);
 
-			// Automatic delete
-			$label = Widget::Label();
-			$input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
+			// Default options
+			$div = new XMLElement('div', null, array('class' => 'two columns'));
+			$this->appendRequiredCheckbox($div);
+			$this->appendShowColumnCheckbox($div);
 
+			// Automatic delete
+			$label = Widget::Label(null, null, 'column');
+			$input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
+			
 			if ($this->get('delete_empty_keys') == '1') $input->setAttribute('checked', 'checked');
 
 			$label->setValue(__('%s Automatically delete empty keys', array($input->generate())));
 
-			$wrapper->appendChild($label);
-
-			// Defaults
-			$this->appendRequiredCheckbox($wrapper);
-			$this->appendShowColumnCheckbox($wrapper);
+			$div->appendChild($label);
+			$wrapper->appendChild($div);
 		}
 
 		/**
