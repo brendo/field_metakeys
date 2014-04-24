@@ -5,7 +5,10 @@
 	/**
 	 * @package field_metakeys
 	 */
-	Class fieldMetaKeys extends Field {
+	require_once FACE . '/interface.exportablefield.php';
+	require_once FACE . '/interface.importablefield.php';
+
+	Class fieldMetaKeys extends Field implements ImportableField, ExportableField {
 
 		public function __construct() {
 			parent::__construct();
@@ -292,6 +295,47 @@
 			return self::__OK__;
 		}
 
+		public function processRawFieldData($data, &$status, &$message=null, $simulate=false, $entry_id=null) {
+			$status = self::__OK__;
+
+			$result = array();
+			$delete_empty_keys = $this->get('delete_empty_keys') == 1;
+
+			if(is_array($data)) foreach($data as $i => $pair) {
+
+				// Key is not empty AND
+				// Value is not empty OR we don't want to delete empty pairs
+				// Then skip adding that pair in the result
+				if(!empty($pair['key']) && (!empty($pair['value']) || $delete_empty_keys == false)) {
+					$result['key_handle'][$i] = Lang::createHandle($pair['key']);
+					$result['key_value'][$i] = $pair['key'];
+					$result['value_handle'][$i] = Lang::createHandle($pair['value']);
+					$result['value_value'][$i] = $pair['value'];
+				}
+			}
+
+			// If there's no values, return null:
+			if(empty($result)) return null;
+
+			return $result;
+		}
+
+		public function getExampleFormMarkup(){
+			$label = Widget::Label($this->get('label'));
+			$label->appendChild(
+				Widget::Input('fields['.$this->get('element_name').'][0][key]')
+			);
+			$label->appendChild(
+				Widget::Input('fields['.$this->get('element_name').'][0][value]')
+			);
+
+			return $label;
+		}
+
+	/*-------------------------------------------------------------------------
+		Import:
+	-------------------------------------------------------------------------*/
+
 		public function getImportModes() {
 			return array(
 				'getPostdata' =>	ImportableField::ARRAY_VALUE,
@@ -355,41 +399,24 @@
 			return null;
 		}
 
-		public function processRawFieldData($data, &$status, &$message=null, $simulate=false, $entry_id=null) {
-			$status = self::__OK__;
+	/*-------------------------------------------------------------------------
+		Export:
+	-------------------------------------------------------------------------*/
 
-			$result = array();
-			$delete_empty_keys = $this->get('delete_empty_keys') == 1;
-
-			if(is_array($data)) foreach($data as $i => $pair) {
-
-				// Key is not empty AND
-				// Value is not empty OR we don't want to delete empty pairs
-				// Then skip adding that pair in the result
-				if(!empty($pair['key']) && (!empty($pair['value']) || $delete_empty_keys == false)) {
-					$result['key_handle'][$i] = Lang::createHandle($pair['key']);
-					$result['key_value'][$i] = $pair['key'];
-					$result['value_handle'][$i] = Lang::createHandle($pair['value']);
-					$result['value_value'][$i] = $pair['value'];
-				}
-			}
-
-			// If there's no values, return null:
-			if(empty($result)) return null;
-
-			return $result;
+		public function getExportModes() {
+			return array(
+				'getPostdata' =>	ExportableField::POSTDATA
+			);
 		}
 
-		public function getExampleFormMarkup(){
-			$label = Widget::Label($this->get('label'));
-			$label->appendChild(
-				Widget::Input('fields['.$this->get('element_name').'][0][key]')
-			);
-			$label->appendChild(
-				Widget::Input('fields['.$this->get('element_name').'][0][value]')
-			);
+		public function prepareExportValue($data, $mode, $entry_id = null) {
+			$modes = (object)$this->getExportModes();
 
-			return $label;
+			if($mode === $modes->getPostdata) {
+				return $data;
+			}
+
+			return null;
 		}
 
 	/*-------------------------------------------------------------------------
