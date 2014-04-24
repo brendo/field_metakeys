@@ -356,21 +356,7 @@
 			$temp = array();
 
 			if($mode === $modes->getPostdata) {
-				if(!is_array($data)) $data = (array)$data;
-
-				if(!isset($data[0]['key'])) {
-					foreach($data as $key => $value) {
-						$temp[] = array(
-							'key' => $key,
-							'value' => $value
-						);
-					}
-				}
-				else {
-					$temp = $data;
-				}
-
-				return $temp;
+				return $this->processRawFieldData($data, $status, $message, true, $entry_id);
 			}
 			else if($mode === $modes->getString) {
 				$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
