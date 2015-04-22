@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extension id="field_metakeys" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
+<extension id="field_metakeys" status="released" xmlns="http://getsymphony.com/schemas/extension/1.0">
 	<name>Meta Keys</name>
 	<description>The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</description>
 	<repo type="github">https://github.com/brendo/field_metakeys</repo>
-	<url type="discuss">http://symphony-cms.com/discuss/thread/52886/</url>
+	<url type="discuss">http://getsymphony.com/discuss/thread/52886/</url>
 	<types>
 		<type>Field Types</type>
 	</types>
@@ -17,6 +17,10 @@
 		<item type="image" url="http://symphonyextensions.com/brendo/field_metakeys/media/field_metakeys.png">Meta Keys: The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</item>
 	</media>
 	<releases>
+		<release version="1.3" date="2015-04-22" min="2.3.1">
+			- Add German localisation
+			- Add importable/exportable field functionality
+		</release>
 		<release version="1.2" date='2013-06-12' min="2.3.1">
 			- Add filtering support for numeric data, see the README
 			- Fix potential JS error with the duplicator
