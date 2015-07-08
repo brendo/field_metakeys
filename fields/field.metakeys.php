@@ -159,7 +159,7 @@
 			// Automatic delete
 			$label = Widget::Label(null, null, 'column');
 			$input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
-			
+
 			if ($this->get('delete_empty_keys') == '1') $input->setAttribute('checked', 'checked');
 
 			$label->setValue(__('%s Automatically delete empty keys', array($input->generate())));
@@ -268,7 +268,7 @@
 
 		public function checkPostFieldData($data, &$message, $entry_id = null) {
 			// Check required
-			if($this->get('required') == 'yes' && (!isset($data[0]['key']) || empty($data[0]['value']))) {
+			if($this->get('required') == 'yes' && (!isset($data[0]['key']) || General::strlen($data[0]['value']) == 0)) {
 				$message = __(
 					"'%s' is a required field.", array(
 						$this->get('label')
@@ -279,7 +279,7 @@
 			}
 
 			// Return if it's allowed to be empty (and is empty)
-			if(empty($data[0]['value'])) return self::__OK__;
+			if(General::strlen($data[0]['value']) == 0) return self::__OK__;
 
 			// Process Validation Rules
 			if (!$this->applyValidationRules($data)) {
@@ -306,7 +306,7 @@
 				// Key is not empty AND
 				// Value is not empty OR we don't want to delete empty pairs
 				// Then skip adding that pair in the result
-				if(!empty($pair['key']) && (!empty($pair['value']) || $delete_empty_keys == false)) {
+				if(!empty($pair['key']) && (General::strlen($pair['value']) > 0 || $delete_empty_keys == false)) {
 					$result['key_handle'][$i] = Lang::createHandle($pair['key']);
 					$result['key_value'][$i] = $pair['key'];
 					$result['value_handle'][$i] = Lang::createHandle($pair['value']);
