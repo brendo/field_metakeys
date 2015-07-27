@@ -356,7 +356,7 @@
 			$temp = array();
 
 			if($mode === $modes->getPostdata) {
-				return $this->processRawFieldData($data, $status, $message, true, $entry_id);
+				return $data;
 			}
 			else if($mode === $modes->getString) {
 				$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
