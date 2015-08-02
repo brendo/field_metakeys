@@ -279,7 +279,7 @@
 			}
 
 			// Return if it's allowed to be empty (and is empty)
-			if(General::strlen($data[0]['value']) == 0) return self::__OK__;
+			if(isset($data[0]['value']) && General::strlen($data[0]['value']) == 0) return self::__OK__;
 
 			// Process Validation Rules
 			if (!$this->applyValidationRules($data)) {
