@@ -307,10 +307,10 @@
 				// Value is not empty OR we don't want to delete empty pairs
 				// Then skip adding that pair in the result
 				if(!empty($pair['key']) && (General::strlen($pair['value']) > 0 || $delete_empty_keys == false)) {
-					$result['key_handle'][$i] = Lang::createHandle($pair['key']);
-					$result['key_value'][$i] = $pair['key'];
-					$result['value_handle'][$i] = Lang::createHandle($pair['value']);
-					$result['value_value'][$i] = $pair['value'];
+					$result['key_handle'][] = Lang::createHandle($pair['key']);
+					$result['key_value'][] = $pair['key'];
+					$result['value_handle'][] = Lang::createHandle($pair['value']);
+					$result['value_value'][] = $pair['value'];
 				}
 			}
 
