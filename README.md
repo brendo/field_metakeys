@@ -60,7 +60,7 @@ Best efforts have been made for these to support normal Symphony enumerators of 
 
 ##### Filter by key (default)
 
-```
+```yaml
 colour
 ```
 
@@ -68,7 +68,7 @@ Normal default filtering without any `*:` conditions will search on keys. This w
 
 ##### Filter by values
 
-```
+```yaml
 value: red
 ```
 
@@ -77,7 +77,7 @@ This will return all entries where one pair exists that has the value of `red`.
 
 ##### Filter by exact key/value pair
 
-```
+```yaml
 key-equals: colour=red
 ```
 
@@ -85,7 +85,7 @@ This will return all entries where the `Colour` key equals `red`. You can chain 
 
 ##### Filter by exact key/value pair
 
-```
+```yaml
 key-contains: colour=red
 ```
 
@@ -93,7 +93,7 @@ This will return all entries where the `Colour` key contains the word `red`, e. 
 
 ##### Filter by value range
 
-```
+```yaml
 key-ranges: 5..10
 key-ranges: 5...
 key-ranges: ...10
