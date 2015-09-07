@@ -517,7 +517,7 @@
 				$this->buildFilterByKeyEqualsQuery($data, $joins, $where);
 			}
 
-			// Filter by exact key/value pair
+			// Filter by key/value pair
 			elseif (strpos($data[0], 'key-contains:') === 0) {
 				$data = $this->getCleanValues($data, 'key-contains:');
 				$this->buildFilterByKeyContainsQuery($data, $joins, $where);
