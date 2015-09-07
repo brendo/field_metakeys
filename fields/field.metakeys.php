@@ -494,8 +494,6 @@
 			else {
 				$this->buildFilterQuery($data, $joins, $where);
 			}
-			//
-			// print_r($where);
 
 			return true;
 		}
@@ -656,64 +654,68 @@
 		private function buildFilterByKeyRangesQuery($data, &$joins, &$where) {
 			$field_id = $this->get('id');
 
-			preg_match("/^([a-z-]+)=((\d+|\.)(\.\.(\d+|\.))?)?/", $data[0], $matches);
-			if (!$matches[2]) {
-				return true;
-			}
+			foreach($data as $filter) {
+				preg_match("/^([a-z-]+)=((\d+|\.)(\.\.(\d+|\.))?)?/", $filter, $matches);
+				if (!$matches[2]) {
+					continue;
+				}
 
-			$joins .= "
-				LEFT JOIN
-					`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
-				ON
-					(e.id = t{$field_id}_{$this->_key}.entry_id)
-			";
-			$where .= "
-				AND (
-					t{$field_id}_{$this->_key}.key_value IN ('{$matches[1]}')
-					OR
-					t{$field_id}_{$this->_key}.key_handle IN ('{$matches[1]}')
-				)
-			";
+				$this->_key++;
 
-			$from = $matches[3];
-			$to = $matches[5];
-
-			// Value
-			if (!$to) {
-				$where .= "
-					AND (
-						{$from} BETWEEN SUBSTRING_INDEX(value_value, '..', 1) AND SUBSTRING_INDEX(value_value, '..', -1)
-					)
+				$joins .= "
+					LEFT JOIN
+						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+					ON
+						(e.id = t{$field_id}_{$this->_key}.entry_id)
 				";
-			}
-
-			// Less than
-			elseif ($from === '.') {
 				$where .= "
 					AND (
-						{$to} >= SUBSTRING_INDEX(value_value, '..', -1)
-					)
-				";
-			}
-
-			// More than
-			elseif ($to === '.') {
-				$where .= "
-					AND (
-						{$from} <= SUBSTRING_INDEX(value_value, '..', 1)
-					)
-				";
-			}
-
-			// Range
-			else {
-				$where .= "
-					AND (
-						{$from} BETWEEN SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', 1) AND SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', -1)
+						t{$field_id}_{$this->_key}.key_value IN ('{$matches[1]}')
 						OR
-						{$to} BETWEEN SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', 1) AND SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', -1)
+						t{$field_id}_{$this->_key}.key_handle IN ('{$matches[1]}')
 					)
 				";
+
+				$from = $matches[3];
+				$to = $matches[5];
+
+				// Value
+				if (!$to) {
+					$where .= "
+						AND (
+							{$from} BETWEEN SUBSTRING_INDEX(value_value, '..', 1) AND SUBSTRING_INDEX(value_value, '..', -1)
+						)
+					";
+				}
+
+				// Less than
+				elseif ($from === '.') {
+					$where .= "
+						AND (
+							{$to} >= SUBSTRING_INDEX(value_value, '..', -1)
+						)
+					";
+				}
+
+				// More than
+				elseif ($to === '.') {
+					$where .= "
+						AND (
+							{$from} <= SUBSTRING_INDEX(value_value, '..', 1)
+						)
+					";
+				}
+
+				// Range
+				else {
+					$where .= "
+						AND (
+							{$from} BETWEEN SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', 1) AND SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', -1)
+							OR
+							{$to} BETWEEN SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', 1) AND SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', -1)
+						)
+					";
+				}
 			}
 		}
 
