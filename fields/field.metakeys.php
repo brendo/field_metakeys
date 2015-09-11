@@ -159,7 +159,7 @@
 			// Automatic delete
 			$label = Widget::Label(null, null, 'column');
 			$input = Widget::Input('fields['.$order.'][delete_empty_keys]', 'yes', 'checkbox');
-			
+
 			if ($this->get('delete_empty_keys') == '1') $input->setAttribute('checked', 'checked');
 
 			$label->setValue(__('%s Automatically delete empty keys', array($input->generate())));
@@ -268,7 +268,7 @@
 
 		public function checkPostFieldData($data, &$message, $entry_id = null) {
 			// Check required
-			if($this->get('required') == 'yes' && (!isset($data[0]['key']) || empty($data[0]['value']))) {
+			if($this->get('required') == 'yes' && (!isset($data[0]['key']) || General::strlen($data[0]['value']) == 0)) {
 				$message = __(
 					"'%s' is a required field.", array(
 						$this->get('label')
@@ -279,7 +279,7 @@
 			}
 
 			// Return if it's allowed to be empty (and is empty)
-			if(empty($data[0]['value'])) return self::__OK__;
+			if(isset($data[0]['value']) && General::strlen($data[0]['value']) == 0) return self::__OK__;
 
 			// Process Validation Rules
 			if (!$this->applyValidationRules($data)) {
@@ -306,11 +306,11 @@
 				// Key is not empty AND
 				// Value is not empty OR we don't want to delete empty pairs
 				// Then skip adding that pair in the result
-				if(!empty($pair['key']) && (!empty($pair['value']) || $delete_empty_keys == false)) {
-					$result['key_handle'][$i] = Lang::createHandle($pair['key']);
-					$result['key_value'][$i] = $pair['key'];
-					$result['value_handle'][$i] = Lang::createHandle($pair['value']);
-					$result['value_value'][$i] = $pair['value'];
+				if(!empty($pair['key']) && (General::strlen($pair['value']) > 0 || $delete_empty_keys == false)) {
+					$result['key_handle'][] = Lang::createHandle($pair['key']);
+					$result['key_value'][] = $pair['key'];
+					$result['value_handle'][] = Lang::createHandle($pair['value']);
+					$result['value_value'][] = $pair['value'];
 				}
 			}
 
@@ -356,7 +356,7 @@
 			$temp = array();
 
 			if($mode === $modes->getPostdata) {
-				return $this->processRawFieldData($data, $status, $message, true, $entry_id);
+				return $data;
 			}
 			else if($mode === $modes->getString) {
 				$data = preg_split('/,\s*/', $data[0], -1, PREG_SPLIT_NO_EMPTY);
@@ -486,78 +486,182 @@
 		 * key-equals:		colour=red	Key Equals
 		 */
 		public function buildDSRetrievalSQL($data, &$joins, &$where, $andOperation = false) {
+			if ($andOperation) {
+				foreach($data as $filter) {
+					$this->buildFilterQuery($filter, $joins, $where);
+				}
+			}
+			else {
+				$this->buildFilterQuery($data, $joins, $where);
+			}
 
+			return true;
+		}
+
+		private function buildFilterQuery($data, &$joins, &$where) {
+			if (!is_array($data)) {
+				$data = array($data);
+			}
+
+			$this->_key++;
+
+			// Filter by values
+			if (strpos($data[0], 'value:') === 0) {
+				$data = $this->getCleanValues($data, 'value:');
+				$this->buildFilterByValueQuery($data, $joins, $where);
+			}
+
+			// Filter by exact key/value pair
+			elseif (strpos($data[0], 'key-equals:') === 0) {
+				$data = $this->getCleanValues($data, 'key-equals:');
+				$this->buildFilterByKeyEqualsQuery($data, $joins, $where);
+			}
+
+			// Filter by key/value pair
+			elseif (strpos($data[0], 'key-contains:') === 0) {
+				$data = $this->getCleanValues($data, 'key-contains:');
+				$this->buildFilterByKeyContainsQuery($data, $joins, $where);
+			}
+
+			// Filter by value range
+			elseif (strpos($data[0], 'key-ranges:') === 0) {
+				$data = $this->getCleanValues($data, 'key-ranges:');
+				$this->buildFilterByKeyRangesQuery($data, $joins, $where);
+			}
+
+			// Filter by key
+			else {
+				$data = $this->getCleanValues($data);
+				$this->buildFilterByKeyQuery($data, $joins, $where);
+			}
+		}
+
+		public function getCleanValues($data, $prefix = null) {
+			for($i = 0; $i < count($data); $i++) {
+				if ($prefix) {
+					$data[$i] = trim(str_replace($prefix, '', $this->cleanValue($data[$i])));
+				}
+				else {
+					$data[$i] = trim($this->cleanValue($data[$i]));
+				}
+			}
+
+			return $data;
+		}
+
+		private function buildFilterByValueQuery($data, &$joins, &$where) {
 			$field_id = $this->get('id');
 
-			// Value filter
-			if (preg_match('/^value:.*/', $data[0])) {
-				$this->_key++;
+			// Get values
+			$value = implode("','", $data);
 
-				// Split all of the possible combos
-				$data[0] = trim(str_replace('value:', '', $this->cleanValue($data[0])));
+			// Build the joins
+			$joins .= "
+				LEFT JOIN
+					`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+				ON
+					(e.id = t{$field_id}_{$this->_key}.entry_id)
+			";
 
-				$joins .= "
-					LEFT JOIN
-						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
-					ON
-						(e.id = t{$field_id}_{$this->_key}.entry_id)
-				";
+			// Build the wheres
+			$where .= "
+				AND (
+					t{$field_id}_{$this->_key}.value_value IN ('{$value}')
+					OR
+					t{$field_id}_{$this->_key}.value_handle IN ('{$value}')
+				)
+			";
+		}
 
-				$value = implode("','", $data);
+		private function buildFilterByKeyEqualsQuery($data, &$joins, &$where) {
+			$field_id = $this->get('id');
 
-				// Build the wheres
-				$where .= "
-					AND (
-						t{$field_id}_{$this->_key}.value_value IN ('{$value}')
-						OR
-						t{$field_id}_{$this->_key}.value_handle IN ('{$value}')
-					)
-				";
+			// Get all the keys/values
+			$keys = array();
+			$values = array();
+
+			foreach($data as $filter) {
+				list($key, $value) = explode('=', $filter);
+				$keys[] = trim($key);
+				$values[] = trim($value);
 			}
 
-			// Key equals filter
-			else if (preg_match('/^key-equals:.*/', $data[0])) {
-				$this->_key++;
+			$key = implode("','", $keys);
+			$value = implode("','", $values);
 
-				// Split all of the possible combos
-				$data[0] = trim(str_replace('key-equals:', '', $this->cleanValue($data[0])));
+			// Build the joins
+			$joins .= "
+				LEFT JOIN
+					`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+				ON
+					(e.id = t{$field_id}_{$this->_key}.entry_id)
+			";
 
-				$joins .= "
-					LEFT JOIN
-						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
-					ON
-						(e.id = t{$field_id}_{$this->_key}.entry_id)
-				";
+			// Build the wheres
+			$where .= "
+				AND (
+					t{$field_id}_{$this->_key}.key_value IN ('{$key}')
+					OR
+					t{$field_id}_{$this->_key}.key_handle IN ('{$key}')
+				)
+				AND (
+					t{$field_id}_{$this->_key}.value_value IN ('{$value}')
+					OR
+					t{$field_id}_{$this->_key}.value_handle IN ('{$value}')
+				)
+			";
+		}
 
-				// Get all the keys/values
-				$keys = array();
-				$values = array();
+		private function buildFilterByKeyContainsQuery($data, &$joins, &$where) {
+			$field_id = $this->get('id');
 
-				foreach($data as $filter) {
-					$keys = array_merge($keys, preg_split('/=\w+[,+-\s]*\w+/', $filter, null, 1));
-					$values = array_merge($values, preg_split('/\w+[,+-\s]*\w+=/', $filter, null, 1));
+			// Get all the keys/values
+			$keys = array();
+			$values = array();
+
+			foreach($data as $filter) {
+				list($key, $value) = explode('=', $filter);
+				$keys[] = trim($key);
+				$values[] = trim($value);
+			}
+
+			$key = implode("','", $keys);
+			$value = implode("|", $values);
+
+			// Build the joins
+			$joins .= "
+				LEFT JOIN
+					`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+				ON
+					(e.id = t{$field_id}_{$this->_key}.entry_id)
+			";
+
+			// Build the wheres
+			$where .= "
+				AND (
+					t{$field_id}_{$this->_key}.key_value IN ('{$key}')
+					OR
+					t{$field_id}_{$this->_key}.key_handle IN ('{$key}')
+				)
+				AND (
+					t{$field_id}_{$this->_key}.value_value REGEXP '{$value}'
+					OR
+					t{$field_id}_{$this->_key}.value_handle REGEXP '{$value}'
+				)
+			";
+		}
+
+		private function buildFilterByKeyRangesQuery($data, &$joins, &$where) {
+			$field_id = $this->get('id');
+
+			foreach($data as $filter) {
+				preg_match("/^([a-z-]+)=((\d+|\.)(\.\.(\d+|\.))?)?/", $filter, $matches);
+				if (!$matches[2]) {
+					continue;
 				}
 
-				$key = implode("','", $keys);
-				$value = implode("','", $values);
+				$this->_key++;
 
-				// Build the wheres
-				$where .= "
-					AND (
-						t{$field_id}_{$this->_key}.key_value IN ('{$key}')
-						OR
-						t{$field_id}_{$this->_key}.key_handle IN ('{$key}')
-					)
-					AND (
-						t{$field_id}_{$this->_key}.value_value IN ('{$value}')
-						OR
-						t{$field_id}_{$this->_key}.value_handle IN ('{$value}')
-					)
-				";
-			}
-
-			// Range operation (basic numeric filtering) on value
-			elseif (preg_match('/^([a-z-]+):\s?(\d+)\.{2}(\d+)/', $data[0], $matches)) {
 				$joins .= "
 					LEFT JOIN
 						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
@@ -570,98 +674,73 @@
 						OR
 						t{$field_id}_{$this->_key}.key_handle IN ('{$matches[1]}')
 					)
-					AND (
-						t{$field_id}_{$this->_key}.value_value BETWEEN {$matches[2]} AND {$matches[3]}
-					)
 				";
-			}
 
-			// Less than numeric on value
-			elseif (preg_match('/^([a-z-]+):\s?\.{3}(\d+)/', $data[0], $matches)) {
-				$joins .= "
-					LEFT JOIN
-						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
-					ON
-						(e.id = t{$field_id}_{$this->_key}.entry_id)
-				";
-				$where .= "
-					AND (
-						t{$field_id}_{$this->_key}.key_value IN ('{$matches[1]}')
-						OR
-						t{$field_id}_{$this->_key}.key_handle IN ('{$matches[1]}')
-					)
-					AND (
-						t{$field_id}_{$this->_key}.value_value <= {$matches[2]}
-					)
-				";
-			}
+				$from = $matches[3];
+				$to = $matches[5];
 
-			// More than numeric on value
-			elseif (preg_match('/^([a-z-]+):\s?(\d+)\.{3}/', $data[0], $matches)) {
-				$joins .= "
-					LEFT JOIN
-						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
-					ON
-						(e.id = t{$field_id}_{$this->_key}.entry_id)
-				";
-				$where .= "
-					AND (
-						t{$field_id}_{$this->_key}.key_value IN ('{$matches[1]}')
-						OR
-						t{$field_id}_{$this->_key}.key_handle IN ('{$matches[1]}')
-					)
-					AND (
-						t{$field_id}_{$this->_key}.value_value >= {$matches[2]}
-					)
-				";
-			}
-
-			elseif ($andOperation) {
-				foreach ($data as $value) {
-					$this->_key++;
-					$value = $this->cleanValue($value);
-					$joins .= "
-						LEFT JOIN
-							`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
-							ON (e.id = t{$field_id}_{$this->_key}.entry_id)
-					";
+				// Value
+				if (!$to) {
 					$where .= "
 						AND (
-							t{$field_id}_{$this->_key}.key_value = '{$value}'
-							OR
-							t{$field_id}_{$this->_key}.key_handle = '{$value}'
+							{$from} BETWEEN SUBSTRING_INDEX(value_value, '..', 1) AND SUBSTRING_INDEX(value_value, '..', -1)
 						)
 					";
 				}
 
-			}
-
-			// Default Key match
-			else {
-				if (!is_array($data)) $data = array($data);
-
-				foreach ($data as &$value) {
-					$value = $this->cleanValue($value);
+				// Less than
+				elseif ($from === '.') {
+					$where .= "
+						AND (
+							{$to} >= SUBSTRING_INDEX(value_value, '..', -1)
+						)
+					";
 				}
 
-				$this->_key++;
-				$data = implode("', '", $data);
-				$joins .= "
-					LEFT JOIN
-						`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
-					ON
-						(e.id = t{$field_id}_{$this->_key}.entry_id)
-				";
-				$where .= "
-					AND (
-						t{$field_id}_{$this->_key}.key_value IN ('{$data}')
-						OR
-						t{$field_id}_{$this->_key}.key_handle IN ('{$data}')
-					)
-				";
-			}
+				// More than
+				elseif ($to === '.') {
+					$where .= "
+						AND (
+							{$from} <= SUBSTRING_INDEX(value_value, '..', 1)
+						)
+					";
+				}
 
-			return true;
+				// Range
+				else {
+					$where .= "
+						AND (
+							{$from} BETWEEN SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', 1) AND SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', -1)
+							OR
+							{$to} BETWEEN SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', 1) AND SUBSTRING_INDEX(t{$field_id}_{$this->_key}.value_value, '..', -1)
+						)
+					";
+				}
+			}
+		}
+
+		private function buildFilterByKeyQuery($data, &$joins, &$where) {
+			$field_id = $this->get('id');
+
+			// Get values
+			$values = implode("', '", $data);
+
+			// Build the joins
+			$joins .= "
+				LEFT JOIN
+					`tbl_entries_data_{$field_id}` AS t{$field_id}_{$this->_key}
+				ON
+					(e.id = t{$field_id}_{$this->_key}.entry_id)
+			";
+
+			// Build the wheres
+			$where .= "
+				AND (
+					t{$field_id}_{$this->_key}.key_value IN ('{$values}')
+					OR
+					t{$field_id}_{$this->_key}.key_handle IN ('{$values}')
+				)
+			";
 		}
 
 	}
