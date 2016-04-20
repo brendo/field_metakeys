@@ -549,6 +549,31 @@
 			return $data;
 		}
 
+		public function getFilterData($data, $value_separator = "','", $key_separator = "','") {
+			$keys = array();
+			$values = array();
+
+			foreach($data as $filter) {
+				if (strpos($filter, '=') !== false) {
+					list($key, $value) = explode('=', $filter);
+
+					$keys = array_merge($keys, explode(',', $key));
+					$values = array_merge($values, explode(',', $value));
+				}
+				else {
+					$values = array_merge($values, explode(',', $filter));
+				}
+			}
+
+			$keys = array_map('trim', $keys);
+			$values = array_map('trim', $values);
+
+			return array(
+				'keys' => implode($key_separator, $keys),
+				'values' => implode($value_separator, $values)
+			);
+		}
+
 		private function buildFilterByValueQuery($data, &$joins, &$where) {
 			$field_id = $this->get('id');
 
@@ -577,17 +602,7 @@
 			$field_id = $this->get('id');
 
 			// Get all the keys/values
-			$keys = array();
-			$values = array();
-
-			foreach($data as $filter) {
-				list($key, $value) = explode('=', $filter);
-				$keys[] = trim($key);
-				$values[] = trim($value);
-			}
-
-			$key = implode("','", $keys);
-			$value = implode("','", $values);
+			$filter = $this->getFilterData($data);
 
 			// Build the joins
 			$joins .= "
@@ -600,14 +615,14 @@
 			// Build the wheres
 			$where .= "
 				AND (
-					t{$field_id}_{$this->_key}.key_value IN ('{$key}')
+					t{$field_id}_{$this->_key}.key_value IN ('{$filter['keys']}')
 					OR
-					t{$field_id}_{$this->_key}.key_handle IN ('{$key}')
+					t{$field_id}_{$this->_key}.key_handle IN ('{$filter['keys']}')
 				)
 				AND (
-					t{$field_id}_{$this->_key}.value_value IN ('{$value}')
+					t{$field_id}_{$this->_key}.value_value IN ('{$filter['values']}')
 					OR
-					t{$field_id}_{$this->_key}.value_handle IN ('{$value}')
+					t{$field_id}_{$this->_key}.value_handle IN ('{$filter['values']}')
 				)
 			";
 		}
@@ -616,17 +631,7 @@
 			$field_id = $this->get('id');
 
 			// Get all the keys/values
-			$keys = array();
-			$values = array();
-
-			foreach($data as $filter) {
-				list($key, $value) = explode('=', $filter);
-				$keys[] = trim($key);
-				$values[] = trim($value);
-			}
-
-			$key = implode("','", $keys);
-			$value = implode("|", $values);
+			$filter = $this->getFilterData($data, "|");
 
 			// Build the joins
 			$joins .= "
@@ -639,14 +644,14 @@
 			// Build the wheres
 			$where .= "
 				AND (
-					t{$field_id}_{$this->_key}.key_value IN ('{$key}')
+					t{$field_id}_{$this->_key}.key_value IN ('{$filter['keys']}')
 					OR
-					t{$field_id}_{$this->_key}.key_handle IN ('{$key}')
+					t{$field_id}_{$this->_key}.key_handle IN ('{$filter['keys']}')
 				)
 				AND (
-					t{$field_id}_{$this->_key}.value_value REGEXP '{$value}'
+					t{$field_id}_{$this->_key}.value_value REGEXP '{$filter['values']}'
 					OR
-					t{$field_id}_{$this->_key}.value_handle REGEXP '{$value}'
+					t{$field_id}_{$this->_key}.value_handle REGEXP '{$filter['values']}'
 				)
 			";
 		}
@@ -723,7 +728,7 @@
 			$field_id = $this->get('id');
 
 			// Get values
-			$values = implode("', '", $data);
+			$values = implode("','", $data);
 
 			// Build the joins
 			$joins .= "
