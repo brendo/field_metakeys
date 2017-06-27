@@ -29,7 +29,7 @@
 			return true;
 		}
 
-		public function update($previousVersion){
+		public function update($previousVersion = false){
 			if(version_compare($previousVersion, '0.9.4', '<')) {
 				Symphony::Database()->query('ALTER TABLE `tbl_fields_metakeys` ADD `delete_empty_keys` INT(1) NOT NULL DEFAULT \'1\';');
 				// Get all the fields that are meta-keys:
