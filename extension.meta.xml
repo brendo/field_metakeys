@@ -17,28 +17,31 @@
 		<item type="image" url="http://symphonyextensions.com/brendo/field_metakeys/media/field_metakeys.png">Meta Keys: The Meta Keys field allows you to add arbitrary pieces of information to entries identified by user generated keys</item>
 	</media>
 	<releases>
-		<release version="1.4" date="2015-09-12" min="2.3.1" max="2.6.x">
+		<release version="1.4.1" date="2017-08-10" min="2.3.1" max="2.x.x">
+			- Symphony 2.7 compatibility
+		</release>
+		<release version="1.4.0" date="2015-09-12" min="2.3.1" max="2.6.x">
 			- Add new filter option, `key-contains`, thanks @nilshoerrmann
 			- Improve range filtering with `key-ranges` @nilshoerrmann
 			- Fix XML Importer import functionality, thanks @jurajkapsz
 			- Allow zero to be a real value, thanks @jurajkapsz
 		</release>
-		<release version="1.3" date="2015-04-22" min="2.3.1">
+		<release version="1.3.0" date="2015-04-22" min="2.3.1">
 			- Add German localisation
 			- Add importable/exportable field functionality
 		</release>
-		<release version="1.2" date='2013-06-12' min="2.3.1">
+		<release version="1.2.0" date="2013-06-12" min="2.3.1">
 			- Add filtering support for numeric data, see the README
 			- Fix potential JS error with the duplicator
 		</release>
-		<release version="1.1" date='2013-05-19' min="2.3.1">
+		<release version="1.1.0" date="2013-05-19" min="2.3.1">
 			- Duplicator updates (orderable and sortable), thanks @kanduvisla!
 			- Implement XMLImporter's updated `prepareImportValue` function, thanks @nilshoerrmann!
 			- Sanitize keys and allow keys to be assigned a default value, thanks @kanduvisla!
 			- Add Russian language, thanks @alexbirukov
 			- Minor cleanups to CSS/README
 		</release>
-		<release version="1.0" date='2012-05-29' min="2.3">
+		<release version="1.0.0" date="2012-05-29" min="2.3">
 			- Support for Symphony 2.3
 			- Update to use default Symphony duplicator
 		</release>
@@ -60,7 +63,7 @@
 			- Few CSS Tweaks to make Meta Keys play better with other fields
 			- Fix Safari autofocus bug
 		</release>
-		<release version="0.9" date="2010-10-11" min="2.1.0">
+		<release version="0.9.0" date="2010-10-11" min="2.1.0">
 			- Initial Public Release
 		</release>
 	</releases>
